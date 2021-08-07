@@ -1,0 +1,7 @@
+{
+  "files.exclude": {
+    "*.cmp": true,
+    "*.tst": true,
+    "*.out": true
+  }
+}
