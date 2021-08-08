@@ -17,4 +17,35 @@ CHIP DMux8Way {
 
     PARTS:
     // Put your code here:
+    Nand(a=sel[2], b=sel[2], out=sel2not);
+    Nand(a=sel[1], b=sel[1], out=sel1not);
+    Nand(a=sel[0], b=sel[0], out=sel0not);
+    Nand(a=in, b=sel2not, out=l0);
+    Nand(a=l0, b=l0, out=l1);
+    Nand(a=in, b=sel[2], out=l2);
+    Nand(a=l2, b=l2, out=l3);
+    Nand(a=l1, b=sel1not, out=z0);
+    Nand(a=z0, b=z0, out=ao);
+    Nand(a=l1, b=sel[1], out=z1);
+    Nand(a=z1, b=z1, out=bo);
+    Nand(a=ao, b=sel0not, out=x0);
+    Nand(a=x0, b=x0, out=a);
+    Nand(a=ao, b=sel[0], out=x1);
+    Nand(a=x1, b=x1, out=b);
+    Nand(a=bo, b=sel0not, out=x2);
+    Nand(a=x2, b=x2, out=c);
+    Nand(a=bo, b=sel[0], out=x3);
+    Nand(a=x3, b=x3, out=d);
+    Nand(a=l3, b=sel1not, out=j0);
+    Nand(a=j0, b=j0, out=co);
+    Nand(a=l3, b=sel[1], out=j1);
+    Nand(a=j1, b=j1, out=do);
+    Nand(a=co, b=sel0not, out=k0);
+    Nand(a=k0, b=k0, out=e);
+    Nand(a=co, b=sel[0], out=k1);
+    Nand(a=k1, b=k1, out=f);
+    Nand(a=do, b=sel0not, out=k2);
+    Nand(a=k2, b=k2, out=g);
+    Nand(a=do, b=sel[0], out=k3);
+    Nand(a=k3, b=k3, out=h);
 }
