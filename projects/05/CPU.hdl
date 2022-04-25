@@ -6,23 +6,23 @@
 /**
  * The Hack CPU (Central Processing unit), consisting of an ALU,
  * two registers named A and D, and a program counter named PC.
- * The CPU is designed to fetch and execute instructions written in 
+ * The CPU is designed to fetch and execute instructions written in
  * the Hack machine language. In particular, functions as follows:
- * Executes the inputted instruction according to the Hack machine 
+ * Executes the inputted instruction according to the Hack machine
  * language specification. The D and A in the language specification
  * refer to CPU-resident registers, while M refers to the external
- * memory location addressed by A, i.e. to Memory[A]. The inM input 
- * holds the value of this location. If the current instruction needs 
- * to write a value to M, the value is placed in outM, the address 
- * of the target location is placed in the addressM output, and the 
- * writeM control bit is asserted. (When writeM==0, any value may 
- * appear in outM). The outM and writeM outputs are combinational: 
- * they are affected instantaneously by the execution of the current 
- * instruction. The addressM and pc outputs are clocked: although they 
- * are affected by the execution of the current instruction, they commit 
- * to their new values only in the next time step. If reset==1 then the 
- * CPU jumps to address 0 (i.e. pc is set to 0 in next time step) rather 
- * than to the address resulting from executing the current instruction. 
+ * memory location addressed by A, i.e. to Memory[A]. The inM input
+ * holds the value of this location. If the current instruction needs
+ * to write a value to M, the value is placed in outM, the address
+ * of the target location is placed in the addressM output, and the
+ * writeM control bit is asserted. (When writeM==0, any value may
+ * appear in outM). The outM and writeM outputs are combinational:
+ * they are affected instantaneously by the execution of the current
+ * instruction. The addressM and pc outputs are clocked: although they
+ * are affected by the execution of the current instruction, they commit
+ * to their new values only in the next time step. If reset==1 then the
+ * CPU jumps to address 0 (i.e. pc is set to 0 in next time step) rather
+ * than to the address resulting from executing the current instruction.
  */
 
 CHIP CPU {
@@ -34,10 +34,57 @@ CHIP CPU {
                          // the current program (reset==0).
 
     OUT outM[16],        // M value output
-        writeM,          // Write to M? 
+        writeM,          // Write to M?
         addressM[15],    // Address in data memory (of M)
         pc[15];          // address of next instruction
 
     PARTS:
     // Put your code here:
+    // instructionのデコード(分割)
+    // iのデコード
+    // instruction[15]
+    // xのデコード
+    // instruction[13..14]
+    // aのデコード
+    // instruction[12]
+    // cのデコード
+    // instruction[6..11]
+    // dのデコード
+    // instruction[3..5]
+    // jのデコード
+    // instruction[0..2]
+    // ALU出力結果が条件と合っているか
+    Mux16(a=instruction, b=TempM, sel=instruction[15], out=MUPout);
+    // A Register
+    // iが1かつd1が1､もしくはiが0ならAレジスタに書き込む
+    Not(in=instruction[15], out=Noti);
+    And(a=instruction[15], b=instruction[5], out=Checki1d11);
+    Or(a=Checki1d11, b=Noti, out=CheckWriteA);
+    ARegister(in=MUPout, load=CheckWriteA, out=RegAout, out[0..14]=addressM);
+    // D Register
+    // iが1かつd2が1ならDレジスタに書き込む
+    And(a=instruction[15], b=instruction[4], out=Checki1d21);
+    DRegister(in=TempM, load=Checki1d21, out=RegDout);
+    // ALUの前のMUX
+    // AかMかを見る
+    Mux16(a=RegAout, b=inM, sel=instruction[12], out=AM);
+    // ALUの処理
+    ALU(x=RegDout, y=AM, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=outM, out=TempM, zr=ALUzero, ng=ALUneg);
+    // ALUposの出力
+    Not(in=ALUneg, out=NALUneg);
+    Xor(a=NALUneg, b=ALUzero, out=ALUpos);
+    // writeM
+    // i=1かつd3が1ならMに書き込む
+    And(a=instruction[15], b=instruction[3], out=writeM);
+    // j1=1かつout<0のチェック
+    And(a=instruction[2], b=ALUneg, out=j1true);
+    // j2=1かつout=0のチェック
+    And(a=instruction[1], b=ALUzero, out=j2true);
+    // j3=1かつout>0のチェック
+    And(a=instruction[0], b=ALUpos, out=j3true);
+    // 上記条件のうち､どれかが満たされている場合はloadする
+    Or(a=j1true, b=j2true, out=j12true);
+    Or(a=j12true, b=j3true, out=j123true);
+    And(a=j123true, b=instruction[15], out=Checkload);
+    PC(in=RegAout, load=Checkload, inc=true, reset=reset, out[0..14]=pc);
 }
