@@ -4,5 +4,9 @@
     "**/*.tst": true,
     "**/*.out": true,
     "**/*.hack": true
-  }
+  },
+  "files.associations": {
+    ".*lintrc": "json",
+    "stdio.h": "c"
+  },
 }
