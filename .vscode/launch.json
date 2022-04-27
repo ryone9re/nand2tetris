@@ -10,7 +10,7 @@
             "name": "Debug",
             "program": "${fileDirname}/assembler",
             "args": [
-                "${workspaceFolder}/projects/06/add/Add.asm"
+                "${workspaceFolder}/projects/06/max/MaxL.asm"
             ],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "C/C++: gcc アクティブなファイルのビルド"

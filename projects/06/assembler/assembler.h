@@ -78,16 +78,27 @@ void parser(char *file_name);
 void constructor(char *file_name);
 char **buffer_splitter(char *buffer);
 command_type check_command_type(char *word);
+void deep_free(char **instructions);
+/* Code */
+void a_commander(char *symbol, char *file_name);
+void c_commander(char *word, char *file_name);
+
 /* parse_tools.c */
 char *pick_symbol(char *word, command_type type);
 dest_mnemonic pick_dest(char *word);
 comp_mnemonic pick_comp(char *word);
 jump_mnemonic pick_jump(char *word);
-/* Code */
+void write_dest_bin(char *temp_dest, dest_mnemonic dm);
+void write_comp_bin(char *temp_comp, comp_mnemonic cm);
+void write_jump_bin(char *temp_jump, jump_mnemonic jm);
+
 /* util.c */
 int row_counter(char *buffer);
 int get_line_length(char *buffer, int start_word);
 char *word_slicer(char *buffer, int now_word_num, int line_length);
 void buffer_initializer(char *buffer);
+char *file_ext_converter(char *src, char *new_ext);
+void write_output(char *file_name, char *ext, char *output);
+void set_buffer(char *buffer, char *word, int size);
 
 #endif /* ASSEBMLER_H */

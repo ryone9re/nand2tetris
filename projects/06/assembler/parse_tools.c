@@ -184,3 +184,106 @@ jump_mnemonic pick_jump(char *word)
     free(mnemonic);
     return (jm);
 }
+
+/* Write dest mnemonic binary code to temp_dest */
+void write_dest_bin(char *temp_dest, dest_mnemonic dm)
+{
+    if (dm.DEST_M == 1)
+        set_buffer(temp_dest, "001", 3);
+    else if (dm.DEST_D == 1)
+        set_buffer(temp_dest, "010", 3);
+    else if (dm.DEST_MD == 1)
+        set_buffer(temp_dest, "011", 3);
+    else if (dm.DEST_A == 1)
+        set_buffer(temp_dest, "100", 3);
+    else if (dm.DEST_AM == 1)
+        set_buffer(temp_dest, "101", 3);
+    else if (dm.DEST_AD == 1)
+        set_buffer(temp_dest, "110", 3);
+    else if (dm.DEST_AMD == 1)
+        set_buffer(temp_dest, "111", 3);
+    else
+        set_buffer(temp_dest, "000", 3);
+}
+
+/* Write comp mnemonic binary code to temp_comp */
+void write_comp_bin(char *temp_comp, comp_mnemonic cm)
+{
+    if (cm.COMP_ZERO == 1)
+        set_buffer(temp_comp, "0101010", 7);
+    else if (cm.COMP_PLSONE == 1)
+        set_buffer(temp_comp, "0111111", 7);
+    else if (cm.COMP_MINONE == 1)
+        set_buffer(temp_comp, "0111010", 7);
+    else if (cm.COMP_PLSD == 1)
+        set_buffer(temp_comp, "0001100", 7);
+    else if (cm.COMP_PLSA == 1)
+        set_buffer(temp_comp, "0110000", 7);
+    else if (cm.COMP_NOTD == 1)
+        set_buffer(temp_comp, "0001101", 7);
+    else if (cm.COMP_NOTA == 1)
+        set_buffer(temp_comp, "0110001", 7);
+    else if (cm.COMP_MIND == 1)
+        set_buffer(temp_comp, "0001111", 7);
+    else if (cm.COMP_MINA == 1)
+        set_buffer(temp_comp, "0110011", 7);
+    else if (cm.COMP_DPLSONE == 1)
+        set_buffer(temp_comp, "0011111", 7);
+    else if (cm.COMP_APLSONE == 1)
+        set_buffer(temp_comp, "0110111", 7);
+    else if (cm.COMP_DMINONE == 1)
+        set_buffer(temp_comp, "0001110", 7);
+    else if (cm.COMP_AMINONE == 1)
+        set_buffer(temp_comp, "0110010", 7);
+    else if (cm.COMP_DPLSA == 1)
+        set_buffer(temp_comp, "0000010", 7);
+    else if (cm.COMP_DMINA == 1)
+        set_buffer(temp_comp, "0010011", 7);
+    else if (cm.COMP_AMIND == 1)
+        set_buffer(temp_comp, "0000111", 7);
+    else if (cm.COMP_DANDA == 1)
+        set_buffer(temp_comp, "0000000", 7);
+    else if (cm.COMP_DORA == 1)
+        set_buffer(temp_comp, "0010101", 7);
+    else if (cm.COMP_PLSM == 1)
+        set_buffer(temp_comp, "1110000", 7);
+    else if (cm.COMP_NOTM == 1)
+        set_buffer(temp_comp, "1110001", 7);
+    else if (cm.COMP_MINM == 1)
+        set_buffer(temp_comp, "1110011", 7);
+    else if (cm.COMP_MPLSONE == 1)
+        set_buffer(temp_comp, "1110111", 7);
+    else if (cm.COMP_MMINONE == 1)
+        set_buffer(temp_comp, "1110010", 7);
+    else if (cm.COMP_DPLSM == 1)
+        set_buffer(temp_comp, "1000010", 7);
+    else if (cm.COMP_DMINM == 1)
+        set_buffer(temp_comp, "1010011", 7);
+    else if (cm.COMP_MMIND == 1)
+        set_buffer(temp_comp, "1000111", 7);
+    else if (cm.COMP_DANDM == 1)
+        set_buffer(temp_comp, "1000000", 7);
+    else if (cm.COMP_DORM == 1)
+        set_buffer(temp_comp, "1010101", 7);
+}
+
+/* Write jump mnemonic binary code to temp_jump */
+void write_jump_bin(char *temp_jump, jump_mnemonic jm)
+{
+    if (jm.JUMP_JGT == 1)
+        set_buffer(temp_jump, "001", 3);
+    else if (jm.JUMP_JEQ == 1)
+        set_buffer(temp_jump, "010", 3);
+    else if (jm.JUMP_JGE == 1)
+        set_buffer(temp_jump, "011", 3);
+    else if (jm.JUMP_JLT == 1)
+        set_buffer(temp_jump, "100", 3);
+    else if (jm.JUMP_JNE == 1)
+        set_buffer(temp_jump, "101", 3);
+    else if (jm.JUMP_JLE == 1)
+        set_buffer(temp_jump, "110", 3);
+    else if (jm.JUMP_JMP == 1)
+        set_buffer(temp_jump, "111", 3);
+    else
+        set_buffer(temp_jump, "000", 3);
+}

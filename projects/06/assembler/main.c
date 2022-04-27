@@ -9,7 +9,7 @@
 char buffer[MAXSIZE];
 
 /* Buffer for output */
-char output[17];
+char output[16];
 
 int main(int argc, char **argv)
 {
@@ -24,29 +24,28 @@ int main(int argc, char **argv)
 void parser(char *file_name)
 {
     char **instructions;
+    char *symbol = NULL;
 
     constructor(file_name);
     instructions = buffer_splitter(buffer);
     for (int i = 0; instructions[i] != NULL; i++)
     {
-        // 各単語のパース､バッファへ書き込み
         buffer_initializer(output);
         command_type t = check_command_type(instructions[i]);
         if (t.A_COMMAND == 1)
         {
-            // A命令の処理
+            symbol = pick_symbol(instructions[i], t);
+            a_commander(symbol, file_name);
+            free(symbol);
         }
         else if (t.L_COMMAND == 1)
         {
             // シンボルの処理
         }
         else
-        {
-            // C命令の処理
-        }
+            c_commander(instructions[i], file_name);
     }
-    // ファイルの最後に\0を書き込む
-    free(instructions);
+    deep_free(instructions);
 }
 
 /* Parser constructor */
@@ -132,4 +131,75 @@ command_type check_command_type(char *word)
     return (t);
 }
 
+/* Free double pointer */
+void deep_free(char **instructions)
+{
+    int i = 0;
+
+    while (instructions[i] != NULL)
+    {
+        free(instructions[i]);
+        i++;
+    }
+    free(instructions[i]);
+    free(instructions);
+}
+
 /* Code module */
+/* Execute command corresponding A instruction */
+void a_commander(char *symbol, char *file_name)
+{
+    char *op = output;
+    int symbol_int = 0;
+    char temp[15];
+    char binary_buffer[15];
+
+    memset(temp, '0', sizeof(char) * 15);
+    memset(binary_buffer, '\0', sizeof(char) * 15);
+    *op++ = '0';
+    symbol_int = atoi(symbol);
+    /* Symbol is address so it does not take a negative value */
+    for (int i = 0; i < 15 && symbol_int > 0; i++, symbol_int /= 2)
+        temp[i] = (symbol_int % 2) + '0';
+    for (int i = 0, j = 14; i < 15 && j >= 0; i++, j--)
+        binary_buffer[i] = temp[j];
+    for (int i = 0; i < 15; i++)
+        op[i] = binary_buffer[i];
+    write_output(file_name, ".hack", output);
+}
+
+/* Execute command corresponding C instruction */
+void c_commander(char *word, char *file_name)
+{
+    char *op = output;
+    dest_mnemonic dm = {0};
+    char temp_dest[3];
+    comp_mnemonic cm = {0};
+    char temp_comp[7];
+    jump_mnemonic jm = {0};
+    char temp_jump[3];
+
+    memset(temp_dest, '\0', sizeof(char) * 3);
+    memset(temp_comp, '\0', sizeof(char) * 7);
+    memset(temp_jump, '\0', sizeof(char) * 3);
+    for (int i = 0; i < 3; i++)
+        *op++ = '1';
+    dm = pick_dest(word);
+    write_dest_bin(temp_dest, dm);
+    cm = pick_comp(word);
+    if (cm.COMP_NULL == 1)
+    {
+        fprintf(stderr, "%s\n", strerror(EINVAL));
+        exit(EINVAL);
+    }
+    write_comp_bin(temp_comp, cm);
+    jm = pick_jump(word);
+    write_jump_bin(temp_jump, jm);
+    for (int i = 0; i < 7; i++)
+        *op++ = temp_comp[i];
+    for (int i = 0; i < 3; i++)
+        *op++ = temp_dest[i];
+    for (int i = 0; i < 3; i++)
+        *op++ = temp_jump[i];
+    write_output(file_name, ".hack", output);
+}

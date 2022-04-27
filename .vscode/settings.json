@@ -2,8 +2,7 @@
   "files.exclude": {
     "**/*.cmp": true,
     "**/*.tst": true,
-    "**/*.out": true,
-    "**/*.hack": true
+    "**/*.out": true
   },
   "files.associations": {
     ".*lintrc": "json",
