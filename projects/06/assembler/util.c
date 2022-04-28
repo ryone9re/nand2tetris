@@ -1,4 +1,5 @@
 #include "assembler.h"
+#include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -101,4 +102,16 @@ void set_buffer(char *buffer, char *word, int size)
 
     for (int i = 0; i < size; i++)
         *bp++ = *wp++;
+}
+
+/* Return if string is number */
+int isnumber(char *str)
+{
+    while (*str != '\0')
+    {
+        if (isdigit(*str) == FALSE)
+            return (FALSE);
+        str++;
+    }
+    return (TRUE);
 }

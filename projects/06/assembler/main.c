@@ -15,19 +15,27 @@ int main(int argc, char **argv)
 {
     (void)argc;
     char *file_name = argv[1];
+    symbol_table *stp = NULL;
 
-    parser(file_name);
+    stp = create_symbol_table();
+    parser(file_name, stp);
+    free_symbol_table(stp);
     return (0);
 }
 
 /* Parser module */
-void parser(char *file_name)
+void parser(char *file_name, symbol_table *stp)
 {
     char **instructions;
     char *symbol = NULL;
+    int instruction_count = 0;
+    int addres_i = -1;
+    char resolved_symbol[READSIZ];
+    int variable_count = 16;
 
     constructor(file_name);
     instructions = buffer_splitter(buffer);
+    first_path(stp, instructions);
     for (int i = 0; instructions[i] != NULL; i++)
     {
         buffer_initializer(output);
@@ -35,15 +43,31 @@ void parser(char *file_name)
         if (t.A_COMMAND == 1)
         {
             symbol = pick_symbol(instructions[i], t);
-            a_commander(symbol, file_name);
+            if (isnumber(symbol) == TRUE)
+                strcpy(resolved_symbol, symbol);
+            else
+            {
+                if (contains(stp, symbol) == TRUE)
+                {
+                    addres_i = get_address(stp, symbol);
+                    sprintf(resolved_symbol, "%d", addres_i);
+                }
+                else
+                {
+                    add_entry(stp, symbol, variable_count);
+                    sprintf(resolved_symbol, "%d", variable_count);
+                    variable_count++;
+                }
+            }
             free(symbol);
+            a_commander(resolved_symbol, file_name);
+            instruction_count++;
         }
-        else if (t.L_COMMAND == 1)
+        else if (t.C_COMMAND == 1)
         {
-            // シンボルの処理
-        }
-        else
             c_commander(instructions[i], file_name);
+            instruction_count++;
+        }
     }
     deep_free(instructions);
 }
@@ -55,8 +79,7 @@ void constructor(char *file_name)
     FILE *fp = NULL;
     char c = -1;
     int in_comment = FALSE;
-    int in_space = FALSE;
-    int last_lf = FALSE;
+    int need_lf = FALSE;
 
     fp = fopen(file_name, "r");
     if (fp == NULL)
@@ -68,23 +91,27 @@ void constructor(char *file_name)
     {
         if (c == '/')
             in_comment = TRUE;
-        if (isspace(c) != FALSE)
-        {
-            in_space = TRUE;
-            if (last_lf == TRUE)
-                in_space = FALSE;
-        }
-        if (in_comment == FALSE && in_space == FALSE)
+        if (in_comment == TRUE && c != '\r' && c != '\n')
+            continue;
+        if (isspace(c) != FALSE && c != '\r' && c != '\n')
+            continue;
+        if (isgraph(c) != FALSE)
         {
             buffer[i] = c;
-            last_lf = TRUE;
+            need_lf = TRUE;
             i++;
         }
-        if (c == '\n')
+        if ((c == '\r' || c == '\n') && need_lf == TRUE)
+        {
+            buffer[i] = c;
+            i++;
+            in_comment = FALSE;
+            need_lf = FALSE;
+        }
+        else if (c == '\r' || c == '\n')
         {
             in_comment = FALSE;
-            in_space = FALSE;
-            last_lf = FALSE;
+            need_lf = FALSE;
         }
     }
     fclose(fp);

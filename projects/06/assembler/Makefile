@@ -1,8 +1,8 @@
 NAME := hack_assembler
 CC := gcc
 RM := -rm
-CFLAGS := -Wextra -Wall -Werror
-C_LIST := main.c parse_tools.c util.c
+CFLAGS := -Wall -Wextra -Werror
+C_LIST := main.c parse_tools.c symbol_table.c util.c
 H_LIST := assembler.h
 O_LIST := $(patsubst %.c, %.o, $(C_LIST))
 

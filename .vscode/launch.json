@@ -8,10 +8,8 @@
             "type": "lldb",
             "request": "launch",
             "name": "Debug",
-            "program": "${fileDirname}/assembler",
-            "args": [
-                "${workspaceFolder}/projects/06/max/MaxL.asm"
-            ],
+            "program": "${fileDirname}/compiled",
+            "args": [],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "C/C++: gcc アクティブなファイルのビルド"
         }

@@ -71,10 +71,17 @@ typedef struct
     int JUMP_JMP;
 } jump_mnemonic;
 
+typedef struct t_symbol_table
+{
+    char *symbol;
+    int address;
+    struct t_symbol_table *next_symbol;
+} symbol_table;
+
 /* Prototypes */
 /* main.c */
 /* Parser */
-void parser(char *file_name);
+void parser(char *file_name, symbol_table *stp);
 void constructor(char *file_name);
 char **buffer_splitter(char *buffer);
 command_type check_command_type(char *word);
@@ -92,6 +99,14 @@ void write_dest_bin(char *temp_dest, dest_mnemonic dm);
 void write_comp_bin(char *temp_comp, comp_mnemonic cm);
 void write_jump_bin(char *temp_jump, jump_mnemonic jm);
 
+/* symbol_table.c */
+symbol_table *create_symbol_table();
+void first_path(symbol_table *stp, char **instructions);
+void add_entry(symbol_table *stp, char *symbol, int address);
+int contains(symbol_table *stp, char *symbol);
+int get_address(symbol_table *stp, char *symbol);
+void free_symbol_table(symbol_table *stp);
+
 /* util.c */
 int row_counter(char *buffer);
 int get_line_length(char *buffer, int start_word);
@@ -100,5 +115,6 @@ void buffer_initializer(char *buffer);
 char *file_ext_converter(char *src, char *new_ext);
 void write_output(char *file_name, char *ext, char *output);
 void set_buffer(char *buffer, char *word, int size);
+int isnumber(char *str);
 
 #endif /* ASSEBMLER_H */

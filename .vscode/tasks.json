@@ -13,7 +13,7 @@
         "-g",
         "${fileDirname}/*.c",
         "-o",
-        "assembler"
+        "compiled"
       ],
       "options": {
         "cwd": "${fileDirname}"
