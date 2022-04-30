@@ -8,6 +8,7 @@ symbol_table *create_symbol_table()
     symbol_table *sp = (symbol_table *)malloc(sizeof(symbol_table));
     symbol_table *stp = sp;
     char *default_label[] = {
+        "SP",
         "LCL",
         "ARG",
         "THIS",
@@ -30,12 +31,12 @@ symbol_table *create_symbol_table()
         "R15",
         "SCREEN",
         "KBD"};
-    int default_address[] = {1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16384, 24576};
+    int default_address[] = {0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16384, 24576};
 
-    sp->symbol = strdup("SP");
-    sp->address = 0;
+    sp->symbol = strdup(default_label[0]);
+    sp->address = default_address[0];
     sp->next_symbol = NULL;
-    for (int i = 0; i < 22; i++)
+    for (int i = 1; i < 23; i++)
     {
         add_entry(stp, default_label[i], default_address[i]);
         stp = stp->next_symbol;
