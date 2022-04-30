@@ -1,4 +1,4 @@
-#include "assembler.h"
+#include "hack_assembler.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>

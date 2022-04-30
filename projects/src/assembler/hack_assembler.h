@@ -1,5 +1,5 @@
-#ifndef ASSEMBLER_H
-#define ASSEMBLER_H
+#ifndef HACK_ASSEMBLER_H
+#define HACK_ASSEMBLER_H
 
 #define TRUE 1
 #define FALSE 0
@@ -117,4 +117,4 @@ void write_output(char *file_name, char *ext, char *output);
 void set_buffer(char *buffer, char *word, int size);
 int isnumber(char *str);
 
-#endif /* ASSEBMLER_H */
+#endif /* HACK_ASSEBMLER_H */
