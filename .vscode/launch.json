@@ -9,7 +9,9 @@
             "request": "launch",
             "name": "Debug",
             "program": "${fileDirname}/compiled",
-            "args": [],
+            "args": [
+                "${workspaceFolder}/projects/07/StackArithmetic/SimpleAdd/SimpleAdd.vm"
+            ],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "C/C++: gcc アクティブなファイルのビルド"
         }
