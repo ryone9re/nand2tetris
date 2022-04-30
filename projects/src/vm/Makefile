@@ -1,4 +1,4 @@
-NAME := hack_vm
+NAME := hack-vm
 CC := gcc
 RM := -rm
 CFLAGS := -Wall -Wextra -Werror
