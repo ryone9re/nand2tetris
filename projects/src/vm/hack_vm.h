@@ -1,6 +1,8 @@
 #ifndef HACK_VM_H
 #define HACK_VM_H
 
+#include <stdio.h>
+
 #define VM_TRUE -1
 #define VM_FALSE 0
 #define MAXSIZE 2097152
@@ -29,7 +31,19 @@ typedef struct
 
 /* code_writer.c */
 /* Code writer module */
-void code_writer(vm_command *vm_commands);
+void code_writer(char *file_name, char *dest_name, vm_command *vm_commands);
+char *dir_path(char *file_name);
+char *add_ext(char *file_name, char *ext);
+char *create_dest_file_name(char *file_name, char *ext);
+int write_arithmetic(vm_command cmd, FILE *fp, int label_num);
+void write_push(vm_command cmd, FILE *fp, char *file_name);
+void write_pop(vm_command cmd, FILE *fp, char *file_name);
+void write_label(vm_command cmd, FILE *fp);
+void write_goto(vm_command cmd, FILE *fp);
+void write_if(vm_command cmd, FILE *fp);
+void write_function(vm_command cmd, FILE *fp);
+void write_return(vm_command cmd, FILE *fp);
+void write_call(vm_command cmd, FILE *fp);
 
 /* parser.c */
 /* Parser module */
@@ -51,8 +65,8 @@ void free_commands(vm_command *vm_commands);
 /* reader.c */
 /* Reader module */
 int check_file_ext(char *file_name, char *ext);
-vm_command *file_to_parser(char *file_name, vm_command *vm_commands);
-vm_command *directory_to_parser(char *file_name, vm_command *vm_commands);
+vm_command *file_to_parser(char *file_name, char *dest_name, vm_command *vm_commands);
+vm_command *directory_to_parser(char *file_name, char *dest_name, vm_command *vm_commands);
 void joinword(char *dest, char *src1, char *src2);
 
 #endif /* HACK_VM_H */

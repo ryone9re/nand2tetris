@@ -10,7 +10,7 @@
             "name": "Debug",
             "program": "${fileDirname}/compiled",
             "args": [
-                "${workspaceFolder}/projects/07/StackArithmetic/SimpleAdd/SimpleAdd.vm"
+                "${workspaceFolder}/projects/07/MemoryAccess/StaticTest/StaticTest.vm"
             ],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "C/C++: gcc アクティブなファイルのビルド"

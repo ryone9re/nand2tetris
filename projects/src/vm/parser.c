@@ -218,7 +218,7 @@ int isarithmetic(char *word)
         return (1);
     else if (strcmp(word, "sub") == 0)
         return (1);
-    else if (strcmp(word, "neq") == 0)
+    else if (strcmp(word, "neg") == 0)
         return (1);
     else if (strcmp(word, "eq") == 0)
         return (1);
@@ -246,7 +246,7 @@ void free_commands(vm_command *vm_commands)
         if (vm_commands[j].command != NULL)
             free(vm_commands[j].command);
         if (vm_commands[j].arg1 != NULL)
-            free(vm_commands[j].command);
+            free(vm_commands[j].arg1);
     }
     free(vm_commands);
 }
