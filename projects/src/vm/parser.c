@@ -144,6 +144,43 @@ void add_to_command(vm_command *vm_commands, char *command)
         add_to->arg1 = strdup(arg1);
         add_to->arg2 = arg2;
     }
+    else if (strcmp(cm, "label") == 0)
+    {
+        add_to->C_LABEL = 1;
+        add_to->command = strdup(cm);
+        add_to->arg1 = strdup(arg1);
+    }
+    else if (strcmp(cm, "goto") == 0)
+    {
+        add_to->C_GOTO = 1;
+        add_to->command = strdup(cm);
+        add_to->arg1 = strdup(arg1);
+    }
+    else if (strcmp(cm, "if-goto") == 0)
+    {
+        add_to->C_IF = 1;
+        add_to->command = strdup(cm);
+        add_to->arg1 = strdup(arg1);
+    }
+    else if (strcmp(cm, "function") == 0)
+    {
+        add_to->C_FUNCTION = 1;
+        add_to->command = strdup(cm);
+        add_to->arg1 = strdup(arg1);
+        add_to->arg2 = arg2;
+    }
+    else if (strcmp(cm, "call") == 0)
+    {
+        add_to->C_CALL = 1;
+        add_to->command = strdup(cm);
+        add_to->arg1 = strdup(arg1);
+        add_to->arg2 = arg2;
+    }
+    else if (strcmp(cm, "return") == 0)
+    {
+        add_to->C_RETURN = 1;
+        add_to->command = strdup(cm);
+    }
     else
         add_to->IS_NULL = 1;
     initialize_vm_command(last);

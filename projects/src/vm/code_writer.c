@@ -289,6 +289,7 @@ void write_push(vm_command cmd, FILE *fp, char *file_name)
     }
     else if (strcmp(cmd.arg1, "constant") == 0)
     {
+        /* Nothing to do */
     }
     else if (strcmp(cmd.arg1, "this") == 0)
     {
@@ -357,6 +358,7 @@ void write_pop(vm_command cmd, FILE *fp, char *file_name)
     }
     else if (strcmp(cmd.arg1, "constant") == 0)
     {
+        /* Nothing to do */
     }
     else if (strcmp(cmd.arg1, "this") == 0)
     {
@@ -394,22 +396,25 @@ void write_pop(vm_command cmd, FILE *fp, char *file_name)
 /* Write label command */
 void write_label(vm_command cmd, FILE *fp)
 {
-    (void)cmd;
-    (void)fp;
+    fprintf(fp, "(%s)\n", cmd.arg1);
 }
 
 /* Write goto command */
 void write_goto(vm_command cmd, FILE *fp)
 {
-    (void)cmd;
-    (void)fp;
+    fprintf(fp, "@%s\n", cmd.arg1);
+    fprintf(fp, "0;JMP\n");
 }
 
 /* Write if command */
 void write_if(vm_command cmd, FILE *fp)
 {
-    (void)cmd;
-    (void)fp;
+    fprintf(fp, "@SP\n");
+    fprintf(fp, "M=M-1\n");
+    fprintf(fp, "A=M\n");
+    fprintf(fp, "D=M\n");
+    fprintf(fp, "@%s\n", cmd.arg1);
+    fprintf(fp, "D;JNE\n");
 }
 
 /* Write function command */
