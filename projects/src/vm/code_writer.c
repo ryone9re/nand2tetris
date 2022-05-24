@@ -398,8 +398,7 @@ void write_pop(vm_command cmd, FILE *fp, char *file_name)
     else if (strcmp(cmd.arg1, "static") == 0)
     {
         fprintf(fp, "@%s.%d\n", symbol, cmd.arg2);
-        fprintf(fp, "A=D+M\n");
-        fprintf(fp, "D=M\n");
+        fprintf(fp, "D=A\n");
     }
     else if (strcmp(cmd.arg1, "constant") == 0)
     {

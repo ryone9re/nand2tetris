@@ -19,20 +19,29 @@ int check_file_ext(char *file_name, char *ext)
 }
 
 /* Read file contents and set to parser */
-vm_command *file_to_parser(char *file_name, vm_command *vm_commands)
+void file_to_parser(char *file_name, char *dest_file_name)
 {
     char read_line[READSIZ] = {'\0'};
     FILE *fp;
+    vm_command *vm_commands = (vm_command *)malloc(sizeof(vm_command));
+    if (vm_commands == NULL)
+    {
+        fprintf(stderr, "%s\n", strerror(ENOMEM));
+        exit(ENOMEM);
+    }
 
+    initialize_vm_command(vm_commands);
+    vm_commands->IS_NULL = 1;
     fp = fopen(file_name, "r");
     while ((fgets(read_line, READSIZ, fp) != NULL))
         vm_commands = parser(read_line, vm_commands);
     fclose(fp);
-    return (vm_commands);
+    code_writer(file_name, dest_file_name, vm_commands);
+    free_commands(vm_commands);
 }
 
 /* Open directory recursively and set to parser  */
-vm_command *directory_to_parser(char *file_name, vm_command *vm_commands)
+void directory_to_parser(char *file_name, char *dest_file_name)
 {
     DIR *dir = NULL;
     struct dirent *dp = NULL;
@@ -56,14 +65,13 @@ vm_command *directory_to_parser(char *file_name, vm_command *vm_commands)
             if (!S_ISDIR(fi.st_mode))
             {
                 if (check_file_ext(file_path, ".vm") == 0)
-                    vm_commands = file_to_parser(file_path, vm_commands);
+                    file_to_parser(file_path, dest_file_name);
             }
             else
-                vm_commands = directory_to_parser(file_path, vm_commands);
+                directory_to_parser(file_path, dest_file_name);
         }
     }
     closedir(dir);
-    return (vm_commands);
 }
 
 /* Join src1 to src2 */

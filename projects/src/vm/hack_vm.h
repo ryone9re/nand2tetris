@@ -70,8 +70,8 @@ void free_commands(vm_command *vm_commands);
 /* reader.c */
 /* Reader module */
 int check_file_ext(char *file_name, char *ext);
-vm_command *file_to_parser(char *file_name, vm_command *vm_commands);
-vm_command *directory_to_parser(char *file_name, vm_command *vm_commands);
+void file_to_parser(char *file_name, char *dest_file_name);
+void directory_to_parser(char *file_name, char *dest_file_name);
 void joinword(char *dest, char *src1, char *src2);
 
 #endif /* HACK_VM_H */
