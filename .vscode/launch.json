@@ -10,7 +10,7 @@
             "name": "Debug",
             "program": "${fileDirname}/compiled",
             "args": [
-                "${workspaceFolder}/projects/07/MemoryAccess/StaticTest/StaticTest.vm"
+                "${workspaceFolder}/projects/08/FunctionCalls/FibonacciElement/"
             ],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "C/C++: gcc アクティブなファイルのビルド"

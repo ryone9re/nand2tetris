@@ -8,6 +8,8 @@
 #define MAXSIZE 2097152
 #define READSIZ 1024
 #define MAXPATHSIZ 256
+#define STACK_START_P 256
+#define SYS_INIT "Sys.init"
 
 typedef struct
 {
@@ -24,6 +26,8 @@ typedef struct
     char *command;
     char *arg1;
     int arg2;
+    char *func;
+    int count;
 } vm_command;
 
 /* Prototypes */
@@ -34,7 +38,8 @@ typedef struct
 void code_writer(char *file_name, char *dest_name, vm_command *vm_commands);
 char *dir_path(char *file_name);
 char *add_ext(char *file_name, char *ext);
-char *create_dest_file_name(char *file_name, char *ext);
+char *create_dest_file_name(char *dest_name, char *file_name, unsigned int st_mode);
+void write_init(FILE *fp);
 int write_arithmetic(vm_command cmd, FILE *fp, int label_num);
 void write_push(vm_command cmd, FILE *fp, char *file_name);
 void write_pop(vm_command cmd, FILE *fp, char *file_name);
@@ -65,8 +70,8 @@ void free_commands(vm_command *vm_commands);
 /* reader.c */
 /* Reader module */
 int check_file_ext(char *file_name, char *ext);
-vm_command *file_to_parser(char *file_name, char *dest_name, vm_command *vm_commands);
-vm_command *directory_to_parser(char *file_name, char *dest_name, vm_command *vm_commands);
+vm_command *file_to_parser(char *file_name, vm_command *vm_commands);
+vm_command *directory_to_parser(char *file_name, vm_command *vm_commands);
 void joinword(char *dest, char *src1, char *src2);
 
 #endif /* HACK_VM_H */

@@ -19,7 +19,7 @@ int check_file_ext(char *file_name, char *ext)
 }
 
 /* Read file contents and set to parser */
-vm_command *file_to_parser(char *file_name, char *dest_name, vm_command *vm_commands)
+vm_command *file_to_parser(char *file_name, vm_command *vm_commands)
 {
     char read_line[READSIZ] = {'\0'};
     FILE *fp;
@@ -28,12 +28,11 @@ vm_command *file_to_parser(char *file_name, char *dest_name, vm_command *vm_comm
     while ((fgets(read_line, READSIZ, fp) != NULL))
         vm_commands = parser(read_line, vm_commands);
     fclose(fp);
-    code_writer(file_name, dest_name, vm_commands);
     return (vm_commands);
 }
 
 /* Open directory recursively and set to parser  */
-vm_command *directory_to_parser(char *file_name, char *dest_name, vm_command *vm_commands)
+vm_command *directory_to_parser(char *file_name, vm_command *vm_commands)
 {
     DIR *dir = NULL;
     struct dirent *dp = NULL;
@@ -57,10 +56,10 @@ vm_command *directory_to_parser(char *file_name, char *dest_name, vm_command *vm
             if (!S_ISDIR(fi.st_mode))
             {
                 if (check_file_ext(file_path, ".vm") == 0)
-                    vm_commands = file_to_parser(file_path, dest_name, vm_commands);
+                    vm_commands = file_to_parser(file_path, vm_commands);
             }
             else
-                vm_commands = directory_to_parser(file_path, dest_name, vm_commands);
+                vm_commands = directory_to_parser(file_path, vm_commands);
         }
     }
     closedir(dir);

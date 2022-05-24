@@ -3,20 +3,20 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 
 /* Code writer module */
 /* Write translated vm commands to asm file */
 void code_writer(char *file_name, char *dest_name, vm_command *vm_commands)
 {
-    char *dest_file_name = NULL;
     char *symbol = NULL;
     FILE *fp = NULL;
     int vm_cmd_len = vm_command_len(vm_commands);
     int label_num = 1;
 
-    dest_file_name = create_dest_file_name(dest_name, "/dest.asm");
     symbol = strrchr(file_name, '/');
-    fp = fopen(dest_file_name, "a");
+    fp = fopen(dest_name, "a");
+    write_init(fp);
     for (int i = 0; i < vm_cmd_len; i++)
     {
         if (vm_commands[i].C_ARITHMETIC)
@@ -57,7 +57,6 @@ void code_writer(char *file_name, char *dest_name, vm_command *vm_commands)
         }
     }
     fclose(fp);
-    free(dest_file_name);
 }
 
 /* Return directory path (need free after used) */
@@ -68,7 +67,7 @@ char *dir_path(char *file_name)
     int dir_path_len = 0;
 
     sp = strrchr(file_name, '/');
-    dir_path_len = sp - file_name;
+    dir_path_len = sp - file_name + 1;
     rp = (char *)malloc(sizeof(char) * dir_path_len + sizeof(char));
     if (rp == NULL)
     {
@@ -107,15 +106,54 @@ char *add_ext(char *dir_path, char *ext)
 }
 
 /* Create dest file name (need free after used) */
-char *create_dest_file_name(char *file_name, char *ext)
+char *create_dest_file_name(char *dest_name, char *file_name, unsigned int st_mode)
 {
     char *dp = NULL;
+    char *start = NULL;
+    char *end = NULL;
     char *fp = NULL;
+    char *base = NULL;
+    char *file = NULL;
+    int i = 0;
 
-    dp = dir_path(file_name);
-    fp = add_ext(dp, ext);
+    dp = dir_path(dest_name);
+    if (file_name[strlen(file_name) - 1] == '/')
+        file_name[strlen(file_name) - 1] = '\0';
+    start = strrchr(file_name, '/');
+    start++;
+    if (S_ISDIR(st_mode))
+        end = &(file_name[strlen(file_name) - 1]);
+    else
+    {
+        end = strrchr(file_name, '.');
+        if (end == NULL)
+            end = &(file_name[strlen(file_name)]);
+        end--;
+    }
+    fp = (char *)malloc(sizeof(char) * (end - start + 1) + sizeof(char));
+    while (i < (end - start + 1))
+    {
+        fp[i] = start[i];
+        i++;
+    }
+    fp[i] = '\0';
+    base = add_ext(dp, fp);
     free(dp);
-    return (fp);
+    free(fp);
+    file = add_ext(base, ".asm");
+    free(base);
+    return (file);
+}
+
+/* Write Initial */
+void write_init(FILE *fp)
+{
+    fprintf(fp, "@%d\n", STACK_START_P);
+    fprintf(fp, "D=A\n");
+    fprintf(fp, "@SP\n");
+    fprintf(fp, "M=D\n");
+    fprintf(fp, "@%s\n", SYS_INIT);
+    fprintf(fp, "0;JMP\n");
 }
 
 /* Write arithmetic command */
@@ -150,70 +188,76 @@ int write_arithmetic(vm_command cmd, FILE *fp, int label_num)
     else if (strcmp(cmd.command, "eq") == 0)
     {
         fprintf(fp, "@SP\n");
-        fprintf(fp, "A=M-1\n");
+        fprintf(fp, "M=M-1\n");
+        fprintf(fp, "A=M\n");
         fprintf(fp, "D=M\n");
-        fprintf(fp, "A=A-1\n");
-        fprintf(fp, "D=M-D\n");
-        fprintf(fp, "M=0\n");
-        fprintf(fp, "@LABEL%d\n", label_num);
-        fprintf(fp, "D;JEQ\n");
-        fprintf(fp, "D=0\n");
-        fprintf(fp, "@LABEL%d\n", ++label_num);
-        fprintf(fp, "0;JMP\n");
-        fprintf(fp, "(LABEL%d)\n", --label_num);
-        fprintf(fp, "@SP\n");
-        fprintf(fp, "D=M-1\n");
-        fprintf(fp, "A=D-1\n");
-        fprintf(fp, "M=-1\n");
-        fprintf(fp, "(LABEL%d)\n", ++label_num);
         fprintf(fp, "@SP\n");
         fprintf(fp, "M=M-1\n");
+        fprintf(fp, "A=M\n");
+        fprintf(fp, "D=M-D\n");
+        fprintf(fp, "@%s$LABEL%d\n", cmd.func, label_num);
+        fprintf(fp, "D;JEQ\n");
+        fprintf(fp, "D=0\n");
+        fprintf(fp, "@%s$LABEL%d\n", cmd.func, ++label_num);
+        fprintf(fp, "0;JMP\n");
+        fprintf(fp, "(%s$LABEL%d)\n", cmd.func, --label_num);
+        fprintf(fp, "D=-1\n");
+        fprintf(fp, "(%s$LABEL%d)\n", cmd.func, ++label_num);
+        fprintf(fp, "@SP\n");
+        fprintf(fp, "A=M\n");
+        fprintf(fp, "M=D\n");
+        fprintf(fp, "@SP\n");
+        fprintf(fp, "M=M+1\n");
         label_num++;
     }
     else if (strcmp(cmd.command, "gt") == 0)
     {
         fprintf(fp, "@SP\n");
-        fprintf(fp, "A=M-1\n");
+        fprintf(fp, "M=M-1\n");
+        fprintf(fp, "A=M\n");
         fprintf(fp, "D=M\n");
-        fprintf(fp, "A=A-1\n");
-        fprintf(fp, "D=M-D\n");
-        fprintf(fp, "M=0\n");
-        fprintf(fp, "@LABEL%d\n", label_num);
-        fprintf(fp, "D;JGT\n");
-        fprintf(fp, "D=0\n");
-        fprintf(fp, "@LABEL%d\n", ++label_num);
-        fprintf(fp, "0;JMP\n");
-        fprintf(fp, "(LABEL%d)\n", --label_num);
-        fprintf(fp, "@SP\n");
-        fprintf(fp, "D=M-1\n");
-        fprintf(fp, "A=D-1\n");
-        fprintf(fp, "M=-1\n");
-        fprintf(fp, "(LABEL%d)\n", ++label_num);
         fprintf(fp, "@SP\n");
         fprintf(fp, "M=M-1\n");
+        fprintf(fp, "A=M\n");
+        fprintf(fp, "D=M-D\n");
+        fprintf(fp, "@%s$LABEL%d\n", cmd.func, label_num);
+        fprintf(fp, "D;JGT\n");
+        fprintf(fp, "D=0\n");
+        fprintf(fp, "@%s$LABEL%d\n", cmd.func, ++label_num);
+        fprintf(fp, "0;JMP\n");
+        fprintf(fp, "(%s$LABEL%d)\n", cmd.func, --label_num);
+        fprintf(fp, "D=-1\n");
+        fprintf(fp, "(%s$LABEL%d)\n", cmd.func, ++label_num);
+        fprintf(fp, "@SP\n");
+        fprintf(fp, "A=M\n");
+        fprintf(fp, "M=D\n");
+        fprintf(fp, "@SP\n");
+        fprintf(fp, "M=M+1\n");
         label_num++;
     }
     else if (strcmp(cmd.command, "lt") == 0)
     {
         fprintf(fp, "@SP\n");
-        fprintf(fp, "A=M-1\n");
+        fprintf(fp, "M=M-1\n");
+        fprintf(fp, "A=M\n");
         fprintf(fp, "D=M\n");
-        fprintf(fp, "A=A-1\n");
-        fprintf(fp, "D=M-D\n");
-        fprintf(fp, "M=0\n");
-        fprintf(fp, "@LABEL%d\n", label_num);
-        fprintf(fp, "D;JLT\n");
-        fprintf(fp, "D=0\n");
-        fprintf(fp, "@LABEL%d\n", ++label_num);
-        fprintf(fp, "0;JMP\n");
-        fprintf(fp, "(LABEL%d)\n", --label_num);
-        fprintf(fp, "@SP\n");
-        fprintf(fp, "D=M-1\n");
-        fprintf(fp, "A=D-1\n");
-        fprintf(fp, "M=-1\n");
-        fprintf(fp, "(LABEL%d)\n", ++label_num);
         fprintf(fp, "@SP\n");
         fprintf(fp, "M=M-1\n");
+        fprintf(fp, "A=M\n");
+        fprintf(fp, "D=M-D\n");
+        fprintf(fp, "@%s$LABEL%d\n", cmd.func, label_num);
+        fprintf(fp, "D;JLT\n");
+        fprintf(fp, "D=0\n");
+        fprintf(fp, "@%s$LABEL%d\n", cmd.func, ++label_num);
+        fprintf(fp, "0;JMP\n");
+        fprintf(fp, "(%s$LABEL%d)\n", cmd.func, --label_num);
+        fprintf(fp, "D=-1\n");
+        fprintf(fp, "(%s$LABEL%d)\n", cmd.func, ++label_num);
+        fprintf(fp, "@SP\n");
+        fprintf(fp, "A=M\n");
+        fprintf(fp, "M=D\n");
+        fprintf(fp, "@SP\n");
+        fprintf(fp, "M=M+1\n");
         label_num++;
     }
     else if (strcmp(cmd.command, "and") == 0)
@@ -354,7 +398,8 @@ void write_pop(vm_command cmd, FILE *fp, char *file_name)
     else if (strcmp(cmd.arg1, "static") == 0)
     {
         fprintf(fp, "@%s.%d\n", symbol, cmd.arg2);
-        fprintf(fp, "D=A\n");
+        fprintf(fp, "A=D+M\n");
+        fprintf(fp, "D=M\n");
     }
     else if (strcmp(cmd.arg1, "constant") == 0)
     {
@@ -396,13 +441,16 @@ void write_pop(vm_command cmd, FILE *fp, char *file_name)
 /* Write label command */
 void write_label(vm_command cmd, FILE *fp)
 {
-    fprintf(fp, "(%s)\n", cmd.arg1);
+    if (cmd.func != NULL)
+        fprintf(fp, "(%s$%s)\n", cmd.func, cmd.arg1);
+    else
+        fprintf(fp, "(%s)\n", cmd.arg1);
 }
 
 /* Write goto command */
 void write_goto(vm_command cmd, FILE *fp)
 {
-    fprintf(fp, "@%s\n", cmd.arg1);
+    fprintf(fp, "@%s$%s\n", cmd.func, cmd.arg1);
     fprintf(fp, "0;JMP\n");
 }
 
@@ -413,27 +461,128 @@ void write_if(vm_command cmd, FILE *fp)
     fprintf(fp, "M=M-1\n");
     fprintf(fp, "A=M\n");
     fprintf(fp, "D=M\n");
-    fprintf(fp, "@%s\n", cmd.arg1);
+    fprintf(fp, "@%s$%s\n", cmd.func, cmd.arg1);
     fprintf(fp, "D;JNE\n");
 }
 
 /* Write function command */
 void write_function(vm_command cmd, FILE *fp)
 {
-    (void)cmd;
-    (void)fp;
+    fprintf(fp, "(%s)\n", cmd.arg1);
+    for (int i = 0; i < cmd.arg2; i++)
+    {
+        fprintf(fp, "@SP\n");
+        fprintf(fp, "A=M\n");
+        fprintf(fp, "M=0\n");
+        fprintf(fp, "@SP\n");
+        fprintf(fp, "M=M+1\n");
+    }
 }
 
+// おそらくここがおかしい
 /* Write return command */
 void write_return(vm_command cmd, FILE *fp)
 {
     (void)cmd;
-    (void)fp;
+    fprintf(fp, "@LCL\n");
+    fprintf(fp, "D=M\n");
+    fprintf(fp, "@R13\n");
+    fprintf(fp, "M=D\n");
+    for (int i = 0; i < 5; i++)
+        fprintf(fp, "D=D-1\n");
+    fprintf(fp, "A=D\n");
+    fprintf(fp, "D=M\n");
+    fprintf(fp, "@R14\n");
+    fprintf(fp, "M=D\n");
+    fprintf(fp, "@SP\n");
+    fprintf(fp, "M=M-1\n");
+    fprintf(fp, "A=M\n");
+    fprintf(fp, "D=M\n");
+    fprintf(fp, "@ARG\n");
+    fprintf(fp, "A=M\n");
+    fprintf(fp, "M=D\n");
+    fprintf(fp, "@ARG\n");
+    fprintf(fp, "D=M\n");
+    fprintf(fp, "@SP\n");
+    fprintf(fp, "M=D+1\n");
+    fprintf(fp, "@R13\n");
+    fprintf(fp, "M=M-1\n");
+    fprintf(fp, "A=M\n");
+    fprintf(fp, "D=M\n");
+    fprintf(fp, "@THAT\n");
+    fprintf(fp, "M=D\n");
+    fprintf(fp, "@R13\n");
+    fprintf(fp, "M=M-1\n");
+    fprintf(fp, "A=M\n");
+    fprintf(fp, "D=M\n");
+    fprintf(fp, "@THIS\n");
+    fprintf(fp, "M=D\n");
+    fprintf(fp, "@R13\n");
+    fprintf(fp, "M=M-1\n");
+    fprintf(fp, "A=M\n");
+    fprintf(fp, "D=M\n");
+    fprintf(fp, "@ARG\n");
+    fprintf(fp, "M=D\n");
+    fprintf(fp, "@R13\n");
+    fprintf(fp, "M=M-1\n");
+    fprintf(fp, "A=M\n");
+    fprintf(fp, "D=M\n");
+    fprintf(fp, "@LCL\n");
+    fprintf(fp, "M=D\n");
+    fprintf(fp, "@R14\n");
+    fprintf(fp, "A=M\n");
+    fprintf(fp, "0;JMP\n");
 }
 
 /* Write call command */
 void write_call(vm_command cmd, FILE *fp)
 {
-    (void)cmd;
-    (void)fp;
+    fprintf(fp, "@%s_%d\n", cmd.arg1, cmd.count + 1);
+    fprintf(fp, "D=A\n");
+    fprintf(fp, "@SP\n");
+    fprintf(fp, "A=M\n");
+    fprintf(fp, "M=D\n");
+    fprintf(fp, "@SP\n");
+    fprintf(fp, "M=M+1\n");
+    fprintf(fp, "@LCL\n");
+    fprintf(fp, "D=M\n");
+    fprintf(fp, "@SP\n");
+    fprintf(fp, "A=M\n");
+    fprintf(fp, "M=D\n");
+    fprintf(fp, "@SP\n");
+    fprintf(fp, "M=M+1\n");
+    fprintf(fp, "@ARG\n");
+    fprintf(fp, "D=M\n");
+    fprintf(fp, "@SP\n");
+    fprintf(fp, "A=M\n");
+    fprintf(fp, "M=D\n");
+    fprintf(fp, "@SP\n");
+    fprintf(fp, "M=M+1\n");
+    fprintf(fp, "@THIS\n");
+    fprintf(fp, "D=M\n");
+    fprintf(fp, "@SP\n");
+    fprintf(fp, "A=M\n");
+    fprintf(fp, "M=D\n");
+    fprintf(fp, "@SP\n");
+    fprintf(fp, "M=M+1\n");
+    fprintf(fp, "@THAT\n");
+    fprintf(fp, "D=M\n");
+    fprintf(fp, "@SP\n");
+    fprintf(fp, "A=M\n");
+    fprintf(fp, "M=D\n");
+    fprintf(fp, "@SP\n");
+    fprintf(fp, "M=M+1\n");
+    fprintf(fp, "@SP\n");
+    fprintf(fp, "D=M\n");
+    for (int i = 0; i < (cmd.arg2 + 5); i++)
+        fprintf(fp, "D=D-1\n");
+    fprintf(fp, "@ARG\n");
+    fprintf(fp, "M=D\n");
+    fprintf(fp, "@SP\n");
+    fprintf(fp, "D=M\n");
+    fprintf(fp, "@LCL\n");
+    fprintf(fp, "M=D\n");
+    fprintf(fp, "@%s\n", cmd.arg1);
+    fprintf(fp, "0;JMP\n");
+    fprintf(fp, "(%s_%d)\n", cmd.arg1, cmd.count + 1);
 }

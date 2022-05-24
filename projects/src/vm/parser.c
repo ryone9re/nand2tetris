@@ -51,6 +51,8 @@ void initialize_vm_command(vm_command *v_command)
     v_command->command = NULL;
     v_command->arg1 = NULL;
     v_command->arg2 = 0;
+    v_command->func = NULL;
+    v_command->count = 0;
 }
 
 /* Check src is comment (TRUE: return 1, FALSE: return 0) */
@@ -118,6 +120,9 @@ int vm_command_len(vm_command *vm_commands)
 void add_to_command(vm_command *vm_commands, char *command)
 {
     int len = vm_command_len(vm_commands);
+    vm_command *before;
+    if (len > 1)
+        before = &vm_commands[len - 2];
     vm_command *add_to = &vm_commands[len - 1];
     vm_command *last = &vm_commands[len];
     char *cm = pick_command(command);
@@ -129,6 +134,9 @@ void add_to_command(vm_command *vm_commands, char *command)
     {
         add_to->C_ARITHMETIC = 1;
         add_to->command = strdup(cm);
+        if (len > 1 && before->func != NULL)
+            add_to->func = strdup(before->func);
+        add_to->count = len;
     }
     else if (strcmp(cm, "push") == 0)
     {
@@ -136,6 +144,9 @@ void add_to_command(vm_command *vm_commands, char *command)
         add_to->command = strdup(cm);
         add_to->arg1 = strdup(arg1);
         add_to->arg2 = arg2;
+        if (len > 1 && before->func != NULL)
+            add_to->func = strdup(before->func);
+        add_to->count = len;
     }
     else if (strcmp(cm, "pop") == 0)
     {
@@ -143,24 +154,36 @@ void add_to_command(vm_command *vm_commands, char *command)
         add_to->command = strdup(cm);
         add_to->arg1 = strdup(arg1);
         add_to->arg2 = arg2;
+        if (len > 1 && before->func != NULL)
+            add_to->func = strdup(before->func);
+        add_to->count = len;
     }
     else if (strcmp(cm, "label") == 0)
     {
         add_to->C_LABEL = 1;
         add_to->command = strdup(cm);
         add_to->arg1 = strdup(arg1);
+        if (len > 1 && before->func != NULL)
+            add_to->func = strdup(before->func);
+        add_to->count = len;
     }
     else if (strcmp(cm, "goto") == 0)
     {
         add_to->C_GOTO = 1;
         add_to->command = strdup(cm);
         add_to->arg1 = strdup(arg1);
+        if (len > 1 && before->func != NULL)
+            add_to->func = strdup(before->func);
+        add_to->count = len;
     }
     else if (strcmp(cm, "if-goto") == 0)
     {
         add_to->C_IF = 1;
         add_to->command = strdup(cm);
         add_to->arg1 = strdup(arg1);
+        if (len > 1 && before->func != NULL)
+            add_to->func = strdup(before->func);
+        add_to->count = len;
     }
     else if (strcmp(cm, "function") == 0)
     {
@@ -168,6 +191,8 @@ void add_to_command(vm_command *vm_commands, char *command)
         add_to->command = strdup(cm);
         add_to->arg1 = strdup(arg1);
         add_to->arg2 = arg2;
+        add_to->func = strdup(arg1);
+        add_to->count = len;
     }
     else if (strcmp(cm, "call") == 0)
     {
@@ -175,11 +200,17 @@ void add_to_command(vm_command *vm_commands, char *command)
         add_to->command = strdup(cm);
         add_to->arg1 = strdup(arg1);
         add_to->arg2 = arg2;
+        if (len > 1 && before->func != NULL)
+            add_to->func = strdup(before->func);
+        add_to->count = len;
     }
     else if (strcmp(cm, "return") == 0)
     {
         add_to->C_RETURN = 1;
         add_to->command = strdup(cm);
+        if (len > 1 && before->func != NULL)
+            add_to->func = strdup(before->func);
+        add_to->count = len;
     }
     else
         add_to->IS_NULL = 1;
@@ -284,6 +315,8 @@ void free_commands(vm_command *vm_commands)
             free(vm_commands[j].command);
         if (vm_commands[j].arg1 != NULL)
             free(vm_commands[j].arg1);
+        if (vm_commands[j].func != NULL)
+            free(vm_commands[j].func);
     }
     free(vm_commands);
 }
