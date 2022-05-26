@@ -10,10 +10,11 @@
             "name": "Debug",
             "program": "${fileDirname}/compiled",
             "args": [
-                "${workspaceFolder}/projects/08/FunctionCalls/FibonacciElement/"
+                "${workspaceFolder}/projects/10/ExpressionLessSquare/Main.jack"
             ],
             "cwd": "${workspaceFolder}",
-            "preLaunchTask": "C/C++: gcc アクティブなファイルのビルド"
+            "preLaunchTask": "C/C++: gcc アクティブなファイルのビルド",
+            "postDebugTask": "clean"
         }
     ]
 }
