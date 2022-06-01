@@ -7,6 +7,52 @@
 #include <string.h>
 #include <sys/stat.h>
 
+const char *KEYWORDS[KEYWORD_COUNT] = {
+    "class",
+    "constructor",
+    "function",
+    "method",
+    "field",
+    "static",
+    "var",
+    "int",
+    "char",
+    "boolean",
+    "void",
+    "true",
+    "false",
+    "null",
+    "this",
+    "let",
+    "do",
+    "if",
+    "else",
+    "while",
+    "return",
+};
+
+const char SYMBOLS[SYMBOL_COUNT] = {
+    '{',
+    '}',
+    '(',
+    ')',
+    '[',
+    ']',
+    '.',
+    ',',
+    ';',
+    '+',
+    '-',
+    '*',
+    '/',
+    '&',
+    '|',
+    '<',
+    '>',
+    '=',
+    '~',
+};
+
 int main(int argc, char **argv)
 {
     char *file_path = NULL;
@@ -82,7 +128,7 @@ void open_dir(char *dir_path)
                 strcat(path_buf, dir_path);
             else
             {
-                strncat(path_buf, dir_path, strlen(dir_path) - 1);
+                strncat(path_buf, dir_path, strlen(dir_path));
                 strcat(path_buf, "/");
             }
             strcat(path_buf, dir->d_name);

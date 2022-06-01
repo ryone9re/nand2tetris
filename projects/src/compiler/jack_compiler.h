@@ -5,6 +5,31 @@
 #include <stdio.h>
 
 /* defenition */
+enum Token_type
+{
+    NOTOKEN,
+    KEYWORD,
+    SYMBOL,
+    IDENTIFIER,
+    INT_CONST,
+    STRING_CONST
+};
+
+typedef struct Token Token;
+
+struct Token
+{
+    char *word;
+    Token *next;
+    enum Token_type token_type;
+};
+
+#define KEYWORD_COUNT 21
+#define SYMBOL_COUNT 19
+
+/* globals */
+extern const char *KEYWORDS[KEYWORD_COUNT];
+extern const char SYMBOLS[SYMBOL_COUNT];
 
 /* main.c */
 /**
@@ -36,9 +61,67 @@ void jack_analyzer(char *jack_file_path);
  * @brief
  * Tokenize from given file pointer.
  * @param fp Target file pointer.
- * @return char** Tokenized string array.
+ * @return Token* Tokenized data array.
  */
-char **jack_tokenizer(FILE *fp);
+Token *jack_tokenizer(FILE *fp);
+/**
+ * @brief
+ * Check str is space.
+ * @param str Target string.
+ * @return int Return 1 if it's symbol, else 0.
+ */
+int is_spaces(char *str);
+/**
+ * @brief
+ * Check str is integer constant.
+ * @param str Target string.
+ * @return int Return 1 if it's symbol, else 0.
+ */
+int is_integer_constant(char *str);
+/**
+ * @brief
+ * Check str is string constant.
+ * @param str Target string.
+ * @return int Return 1 if it's symbol, else 0.
+ */
+int is_string_constant(char *str);
+/**
+ * @brief
+ * Check str is identifier.
+ * @param str Target string.
+ * @return int Return 1 if it's symbol, else 0.
+ */
+int is_identifier(char *str);
+/**
+ * @brief
+ * Check str is symbol.
+ * @param c Target character.
+ * @return int Return 1 if it's symbol, else 0.
+ */
+int is_symbol(char c);
+/**
+ * @brief
+ * Check str is keyword.
+ * @param str Target string.
+ * @return int Return 1 if it's keyword, else 0.
+ */
+int is_keyword(char *str);
+/**
+ * @brief
+ * Generated new Token at the end of token.
+ * @param tokens Target tokens.
+ * @return Token* Return new token address.
+ */
+Token *new_token(Token *tokens);
+/**
+ * @brief
+ * Set word and token type to the end of token.
+ * @param tokens Target tokens.
+ * @param word Token word want to add.
+ * @param token_type Token type want to add.
+ * @return Token* Return token address set new token.
+ */
+Token *add_token(Token *tokens, char *word, enum Token_type token_type);
 
 /* compilation_engine.c */
 
