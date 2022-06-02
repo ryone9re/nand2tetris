@@ -233,6 +233,11 @@ Token *new_token(Token *tokens)
     if (tokens == NULL)
     {
         tokens = (Token *)malloc(sizeof(Token));
+        if (tokens == NULL)
+        {
+            fprintf(stderr, "%s\n", strerror(ENOMEM));
+            exit(ENOMEM);
+        }
         tokens->word = NULL;
         tokens->token_type = NOTOKEN;
         tokens->next = NULL;
@@ -240,6 +245,11 @@ Token *new_token(Token *tokens)
     else
     {
         new_token = (Token *)malloc(sizeof(Token));
+        if (new_token == NULL)
+        {
+            fprintf(stderr, "%s\n", strerror(ENOMEM));
+            exit(ENOMEM);
+        }
         new_token->word = NULL;
         new_token->token_type = NOTOKEN;
         new_token->next = NULL;
