@@ -286,13 +286,13 @@ Token *compile_var_dec(FILE *op, Token *tokens, char *file_name)
             fprintf(stderr, "%s:%d\tCould Not Find '%s' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[8], token->word);
             exit(1);
         }
-        //
     }
     else
     {
         fprintf(stderr, "%s:%d\tIncorrect Token Found: \"%s\"\n\t\tMust be \"%s\".\n", file_name, token->row, token->word, KEYWORDS[6]);
         exit(1);
     }
+    return (token);
 }
 
 Token *compile_statements(FILE *op, Token *tokens, char *file_name);
