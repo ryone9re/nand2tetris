@@ -15,9 +15,12 @@ Token *jack_tokenizer(FILE *fp)
     Token *tokens = NULL;
     int in_line_comment = 0;
     int in_api_comment = 0;
+    int row_count = 1;
 
     while ((c = getc(fp)) != EOF)
     {
+        if (c == '\n')
+            row_count++;
         if (c == '/')
         {
             d = getc(fp);
@@ -77,13 +80,13 @@ Token *jack_tokenizer(FILE *fp)
                     else if (is_symbol_str(word))
                     {
                         if (strcmp(word, "&") == 0)
-                            tokens = add_token(tokens, "&amp;", SYMBOL);
+                            tokens = add_token(row_count, tokens, "&amp;", SYMBOL);
                         else if (strcmp(word, "<") == 0)
-                            tokens = add_token(tokens, "&lt;", SYMBOL);
+                            tokens = add_token(row_count, tokens, "&lt;", SYMBOL);
                         else if (strcmp(word, ">") == 0)
-                            tokens = add_token(tokens, "&gt;", SYMBOL);
+                            tokens = add_token(row_count, tokens, "&gt;", SYMBOL);
                         else
-                            tokens = add_token(tokens, word, SYMBOL);
+                            tokens = add_token(row_count, tokens, word, SYMBOL);
                         free(word);
                         word = NULL;
                         continue;
@@ -93,9 +96,9 @@ Token *jack_tokenizer(FILE *fp)
                         ungetc(c, fp);
                         word[strlen(word) - 1] = '\0';
                         if (is_keyword(word))
-                            tokens = add_token(tokens, word, KEYWORD);
+                            tokens = add_token(row_count, tokens, word, KEYWORD);
                         else if (is_integer_constant(word))
-                            tokens = add_token(tokens, word, INT_CONST);
+                            tokens = add_token(row_count, tokens, word, INT_CONST);
                         else if (is_string_constant(word))
                         {
                             for (int i = 1; i <= (int)strlen(word); i++)
@@ -108,10 +111,10 @@ Token *jack_tokenizer(FILE *fp)
                                     break;
                                 }
                             }
-                            tokens = add_token(tokens, word, STRING_CONST);
+                            tokens = add_token(row_count, tokens, word, STRING_CONST);
                         }
                         else if (is_identifier(word))
-                            tokens = add_token(tokens, word, IDENTIFIER);
+                            tokens = add_token(row_count, tokens, word, IDENTIFIER);
                         else
                         {
                             fprintf(stderr, "%s is invalid\n", word);
@@ -192,7 +195,7 @@ int is_integer_constant(char *str)
     if (strlen(str) == 1 && *str == '0')
         return (1);
     i = atoi(str);
-    if (i)
+    if (MIN_INT < i && i <= MAX_INT)
         return (1);
     return (0);
 }
@@ -238,6 +241,7 @@ Token *new_token(Token *tokens)
             fprintf(stderr, "%s\n", strerror(ENOMEM));
             exit(ENOMEM);
         }
+        tokens->row = 0;
         tokens->word = NULL;
         tokens->token_type = NOTOKEN;
         tokens->next = NULL;
@@ -250,6 +254,7 @@ Token *new_token(Token *tokens)
             fprintf(stderr, "%s\n", strerror(ENOMEM));
             exit(ENOMEM);
         }
+        new_token->row = 0;
         new_token->word = NULL;
         new_token->token_type = NOTOKEN;
         new_token->next = NULL;
@@ -260,7 +265,7 @@ Token *new_token(Token *tokens)
     return (tokens);
 }
 
-Token *add_token(Token *tokens, char *word, enum Token_type token_type)
+Token *add_token(int row, Token *tokens, char *word, enum Token_type token_type)
 {
     Token *token = NULL;
     Token *curr = NULL;
@@ -269,6 +274,7 @@ Token *add_token(Token *tokens, char *word, enum Token_type token_type)
     curr = token;
     while (curr->next != NULL)
         curr = curr->next;
+    curr->row = row;
     curr->word = strdup(word);
     curr->token_type = token_type;
     curr->next = NULL;

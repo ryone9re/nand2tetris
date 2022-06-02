@@ -8,49 +8,49 @@
 #include <sys/stat.h>
 
 const char *KEYWORDS[KEYWORD_COUNT] = {
-    "class",
-    "constructor",
-    "function",
-    "method",
-    "field",
-    "static",
-    "var",
-    "int",
-    "char",
-    "boolean",
-    "void",
-    "true",
-    "false",
-    "null",
-    "this",
-    "let",
-    "do",
-    "if",
-    "else",
-    "while",
-    "return",
+    "class",       /* 0 */
+    "constructor", /* 1 */
+    "function",    /* 2 */
+    "method",      /* 3 */
+    "field",       /* 4 */
+    "static",      /* 5 */
+    "var",         /* 6 */
+    "int",         /* 7 */
+    "char",        /* 8 */
+    "boolean",     /* 9 */
+    "void",        /* 10 */
+    "true",        /* 11 */
+    "false",       /* 12 */
+    "null",        /* 13 */
+    "this",        /* 14 */
+    "let",         /* 15 */
+    "do",          /* 16 */
+    "if",          /* 17 */
+    "else",        /* 18 */
+    "while",       /* 19 */
+    "return",      /* 20 */
 };
 
 const char SYMBOLS[SYMBOL_COUNT] = {
-    '{',
-    '}',
-    '(',
-    ')',
-    '[',
-    ']',
-    '.',
-    ',',
-    ';',
-    '+',
-    '-',
-    '*',
-    '/',
-    '&',
-    '|',
-    '<',
-    '>',
-    '=',
-    '~',
+    '{', /* 0 */
+    '}', /* 1 */
+    '(', /* 2 */
+    ')', /* 3 */
+    '[', /* 4 */
+    ']', /* 5 */
+    '.', /* 6 */
+    ',', /* 7 */
+    ';', /* 8 */
+    '+', /* 9 */
+    '-', /* 10 */
+    '*', /* 11 */
+    '/', /* 12 */
+    '&', /* 13 */
+    '|', /* 14 */
+    '<', /* 15 */
+    '>', /* 16 */
+    '=', /* 17 */
+    '~', /* 18 */
 };
 
 int main(int argc, char **argv)

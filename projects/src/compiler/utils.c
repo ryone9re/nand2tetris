@@ -1,3 +1,4 @@
+#include "jack_compiler.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -65,4 +66,29 @@ char *add_extension(char *file_name_no_ext, char *extension)
     }
     file_name[i] = '\0';
     return (file_name);
+}
+
+void free_token(Token *tokens)
+{
+    Token *tp = NULL;
+    Token *pp = NULL;
+
+    while (1)
+    {
+        tp = tokens;
+        pp = tokens;
+        while (tp->next != NULL)
+        {
+            pp = tp;
+            tp = tp->next;
+        }
+        pp->next = NULL;
+        if (tp == tokens)
+        {
+            free(tp);
+            break;
+        }
+        else
+            free(tp);
+    }
 }

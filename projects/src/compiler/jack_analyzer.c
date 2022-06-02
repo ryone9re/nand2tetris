@@ -48,9 +48,11 @@ void jack_analyzer(char *jack_file_path)
         exit(ENONET);
     }
     free(file_name);
-    write_T(op, tokens);
-    // op to compilation_engine
+    // test
+    // write_T(op, tokens);
+    compilation_engine(op, tokens, jack_file_path);
     fclose(op);
+    free_token(tokens);
 }
 
 // test code
