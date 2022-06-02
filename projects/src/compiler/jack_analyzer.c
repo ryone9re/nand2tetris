@@ -21,6 +21,13 @@ void jack_analyzer(char *jack_file_path)
         fprintf(stderr, "%s\n", strerror(ENOENT));
         exit(ENONET);
     }
+    tokens = jack_tokenizer(fp);
+    fclose(fp);
+    if (tokens == NULL)
+    {
+        fprintf(stderr, "%s:%s\n", jack_file_path, strerror(ENOMEM));
+        return;
+    }
     tmp = remove_extension(jack_file_path);
     if (tmp == NULL)
     {
@@ -35,15 +42,12 @@ void jack_analyzer(char *jack_file_path)
         return;
     }
     op = fopen(file_name, "w");
-    free(file_name);
-    // fp to tokenize
-    tokens = jack_tokenizer(fp);
-    fclose(fp);
-    if (tokens == NULL)
+    if (op == NULL)
     {
-        fprintf(stderr, "%s:%s\n", jack_file_path, strerror(ENOMEM));
-        return;
+        fprintf(stderr, "%s\n", strerror(ENOENT));
+        exit(ENONET);
     }
+    free(file_name);
     write_T(op, tokens);
     // op to compilation_engine
     fclose(op);
