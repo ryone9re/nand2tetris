@@ -7,41 +7,49 @@
 
 Token *jack_tokenizer(FILE *fp)
 {
-    char c, d = 0;
+    char c = 0;
+    char d = 0;
     int word_len = 0;
     char *word = NULL;
     char *tmp_word = NULL;
     Token *tokens = NULL;
-    int in_comment = 0;
+    int in_line_comment = 0;
+    int in_api_comment = 0;
 
     while ((c = getc(fp)) != EOF)
     {
         if (c == '/')
         {
-            if ((d = getc(fp)) == '/' || d == '*')
+            d = getc(fp);
+            if (d == '/')
             {
-                in_comment = 1;
+                in_line_comment = 1;
+                continue;
+            }
+            else if (d == '*')
+            {
+                in_api_comment = 1;
                 continue;
             }
             else
                 ungetc(d, fp);
         }
-        if (in_comment && c == '\n')
+        if (in_line_comment && c == '\n')
         {
-            in_comment = 0;
+            in_line_comment = 0;
             continue;
         }
-        if (in_comment && c == '*')
+        if (in_api_comment && c == '*')
         {
             if ((d = getc(fp)) == '/')
             {
-                in_comment = 0;
+                in_api_comment = 0;
                 continue;
             }
             else
                 ungetc(d, fp);
         }
-        if (!in_comment)
+        if (!(in_line_comment || in_api_comment))
         {
             if (word == NULL)
                 word_len = 0;
@@ -56,40 +64,52 @@ Token *jack_tokenizer(FILE *fp)
             word = tmp_word;
             word[word_len] = c;
             word[word_len + 1] = '\0';
-            // TODO string constant内にスペースがあったときの処理
             if (isspace(c) || is_symbol(c))
             {
-                if (is_spaces(word))
+                if (!is_instr(word))
                 {
-                    free(word);
-                    word = NULL;
-                    continue;
-                }
-                else if (is_symbol(c) && strlen(word) == 1)
-                {
-                    tokens = add_token(tokens, word, SYMBOL);
-                    free(word);
-                    word = NULL;
-                    continue;
-                }
-                else
-                {
-                    word[strlen(word) - 1] = '\0';
-                    if (is_symbol(c))
-                        ungetc(c, fp);
-                    if (is_keyword(word))
+                    if (is_spaces(word))
                     {
-                        tokens = add_token(tokens, word, KEYWORD);
+                        free(word);
+                        word = NULL;
+                        continue;
+                    }
+                    else if (is_symbol_str(word))
+                    {
+                        if (strcmp(word, "&") == 0)
+                            tokens = add_token(tokens, "&amp;", SYMBOL);
+                        else if (strcmp(word, "<") == 0)
+                            tokens = add_token(tokens, "&lt;", SYMBOL);
+                        else if (strcmp(word, ">") == 0)
+                            tokens = add_token(tokens, "&gt;", SYMBOL);
+                        else
+                            tokens = add_token(tokens, word, SYMBOL);
                         free(word);
                         word = NULL;
                         continue;
                     }
                     else
                     {
-                        if (is_integer_constant(word))
+                        ungetc(c, fp);
+                        word[strlen(word) - 1] = '\0';
+                        if (is_keyword(word))
+                            tokens = add_token(tokens, word, KEYWORD);
+                        else if (is_integer_constant(word))
                             tokens = add_token(tokens, word, INT_CONST);
                         else if (is_string_constant(word))
+                        {
+                            for (int i = 1; i <= (int)strlen(word); i++)
+                                word[i - 1] = word[i];
+                            for (int i = (int)strlen(word) - 1; 0 <= i; i--)
+                            {
+                                if (word[i] == '"')
+                                {
+                                    word[i] = '\0';
+                                    break;
+                                }
+                            }
                             tokens = add_token(tokens, word, STRING_CONST);
+                        }
                         else if (is_identifier(word))
                             tokens = add_token(tokens, word, IDENTIFIER);
                         else
@@ -110,6 +130,18 @@ Token *jack_tokenizer(FILE *fp)
     return (tokens);
 }
 
+int is_instr(char *str)
+{
+    if (*str != '"')
+        return (0);
+    for (size_t i = 1; i < strlen(str); i++)
+    {
+        if (str[i] == '"')
+            return (0);
+    }
+    return (1);
+}
+
 int is_spaces(char *str)
 {
     while (*str != '\0')
@@ -119,6 +151,38 @@ int is_spaces(char *str)
         str++;
     }
     return (1);
+}
+
+int is_keyword(char *str)
+{
+    for (int i = 0; i < KEYWORD_COUNT; i++)
+    {
+        if (strcmp(str, KEYWORDS[i]) == 0)
+            return (1);
+    }
+    return (0);
+}
+
+int is_symbol(char c)
+{
+    for (int i = 0; i < SYMBOL_COUNT; i++)
+    {
+        if (c == SYMBOLS[i])
+            return (1);
+    }
+    return (0);
+}
+
+int is_symbol_str(char *str)
+{
+    if (strlen(str) != 1)
+        return (0);
+    for (int i = 0; i < SYMBOL_COUNT; i++)
+    {
+        if (*str == SYMBOLS[i])
+            return (1);
+    }
+    return (0);
 }
 
 int is_integer_constant(char *str)
@@ -159,26 +223,6 @@ int is_identifier(char *str)
         str++;
     }
     return (1);
-}
-
-int is_symbol(char c)
-{
-    for (int i = 0; i < SYMBOL_COUNT; i++)
-    {
-        if (c == SYMBOLS[i])
-            return (1);
-    }
-    return (0);
-}
-
-int is_keyword(char *str)
-{
-    for (int i = 0; i < KEYWORD_COUNT; i++)
-    {
-        if (strcmp(str, KEYWORDS[i]) == 0)
-            return (1);
-    }
-    return (0);
 }
 
 Token *new_token(Token *tokens)

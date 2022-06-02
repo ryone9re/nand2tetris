@@ -66,11 +66,39 @@ void jack_analyzer(char *jack_file_path);
 Token *jack_tokenizer(FILE *fp);
 /**
  * @brief
+ * Check str is in string constant.
+ * @param str Target string.
+ * @return int Return 1 if it's in string constant, else 0.
+ */
+int is_instr(char *str);
+/**
+ * @brief
  * Check str is space.
  * @param str Target string.
- * @return int Return 1 if it's symbol, else 0.
+ * @return int Return 1 if it's spaces, else 0.
  */
 int is_spaces(char *str);
+/**
+ * @brief
+ * Check str is keyword.
+ * @param str Target string.
+ * @return int Return 1 if it's keyword, else 0.
+ */
+int is_keyword(char *str);
+/**
+ * @brief
+ * Check character is symbol.
+ * @param c Target character.
+ * @return int Return 1 if it's symbol, else 0.
+ */
+int is_symbol(char c);
+/**
+ * @brief
+ * Check str is symbol.
+ * @param c Target string.
+ * @return int Return 1 if it's symbol, else 0.
+ */
+int is_symbol_str(char *str);
 /**
  * @brief
  * Check str is integer constant.
@@ -92,20 +120,6 @@ int is_string_constant(char *str);
  * @return int Return 1 if it's symbol, else 0.
  */
 int is_identifier(char *str);
-/**
- * @brief
- * Check str is symbol.
- * @param c Target character.
- * @return int Return 1 if it's symbol, else 0.
- */
-int is_symbol(char c);
-/**
- * @brief
- * Check str is keyword.
- * @param str Target string.
- * @return int Return 1 if it's keyword, else 0.
- */
-int is_keyword(char *str);
 /**
  * @brief
  * Generated new Token at the end of token.
