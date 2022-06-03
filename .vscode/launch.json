@@ -10,7 +10,7 @@
             "name": "Debug",
             "program": "${fileDirname}/compiled",
             "args": [
-                "${workspaceFolder}/projects/10/ExpressionLessSquare"
+                "${workspaceFolder}/projects/11/"
             ],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "C/C++: gcc アクティブなファイルのビルド",

@@ -99,6 +99,14 @@ int is_keyword(char *str);
 
 /**
  * @brief
+ * Check token is keyword constant.
+ * @param str Target string.
+ * @return int If true return 1, else 0.
+ */
+int is_keyword_constant(char *str);
+
+/**
+ * @brief
  * Check character is symbol.
  * @param c Target character.
  * @return int Return 1 if it's symbol, else 0.
@@ -218,6 +226,16 @@ Token *write_identifier(FILE *op, Token *tokens, char *file_name);
 
 /**
  * @brief
+ * Compile subroutine call.
+ * @param op Export file pointer.
+ * @param tokens Tokens.
+ * @param file_name Opening file name.
+ * @return Token* Next token.
+ */
+Token *compile_subroutine_call(FILE *op, Token *tokens, char *file_name);
+
+/**
+ * @brief
  * Compile class.
  * @param op Export file pointer.
  * @param tokens Tokens.
@@ -256,13 +274,13 @@ int is_type(Token *token);
 
 /**
  * @brief
- * Compile method, function and constructor.
+ * Compile method, function and constructor declaration.
  * @param op Export file pointer.
  * @param tokens Tokens.
  * @param file_name Opening file name.
  * @return Token* Next token.
  */
-Token *compile_subroutine(FILE *op, Token *tokens, char *file_name);
+Token *compile_subroutine_dec(FILE *op, Token *tokens, char *file_name);
 
 /**
  * @brief
@@ -303,6 +321,14 @@ Token *compile_var_dec(FILE *op, Token *tokens, char *file_name);
  * @return Token* Next token.
  */
 Token *compile_statements(FILE *op, Token *tokens, char *file_name);
+
+/**
+ * @brief
+ * Check token is statement.
+ * @param token Token.
+ * @return int If true return 1, else 0.
+ */
+int is_statement(Token *token);
 
 /**
  * @brief
@@ -366,6 +392,30 @@ Token *compile_expression(FILE *op, Token *tokens, char *file_name);
 
 /**
  * @brief
+ * Check token is expression.
+ * @param token Token.
+ * @return int If true return 1, else 0.
+ */
+int is_expression(Token *token);
+
+/**
+ * @brief
+ * Check token is op.
+ * @param token Token.
+ * @return int If true return 1, else 0.
+ */
+int is_op(Token *token);
+
+/**
+ * @brief
+ * Check token is unary op.
+ * @param token Token.
+ * @return int If true return 1, else 0.
+ */
+int is_unary_op(Token *token);
+
+/**
+ * @brief
  * Compile term.
  * @param op Export file pointer.
  * @param tokens Tokens.
@@ -373,6 +423,14 @@ Token *compile_expression(FILE *op, Token *tokens, char *file_name);
  * @return Token* Next token.
  */
 Token *compile_term(FILE *op, Token *tokens, char *file_name);
+
+/**
+ * @brief
+ * Check token is term.
+ * @param token Token.
+ * @return int If true return 1, else 0.
+ */
+int is_term(Token *token);
 
 /**
  * @brief

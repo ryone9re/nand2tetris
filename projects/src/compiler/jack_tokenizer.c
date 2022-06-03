@@ -101,16 +101,16 @@ Token *jack_tokenizer(FILE *fp)
                             tokens = add_token(row_count, tokens, word, INT_CONST);
                         else if (is_string_constant(word))
                         {
-                            for (int i = 1; i <= (int)strlen(word); i++)
-                                word[i - 1] = word[i];
-                            for (int i = (int)strlen(word) - 1; 0 <= i; i--)
-                            {
-                                if (word[i] == '"')
-                                {
-                                    word[i] = '\0';
-                                    break;
-                                }
-                            }
+                            // for (int i = 1; i <= (int)strlen(word); i++)
+                            //     word[i - 1] = word[i];
+                            // for (int i = (int)strlen(word) - 1; 0 <= i; i--)
+                            // {
+                            //     if (word[i] == '"')
+                            //     {
+                            //         word[i] = '\0';
+                            //         break;
+                            //     }
+                            // }
                             tokens = add_token(row_count, tokens, word, STRING_CONST);
                         }
                         else if (is_identifier(word))
@@ -163,6 +163,19 @@ int is_keyword(char *str)
         if (strcmp(str, KEYWORDS[i]) == 0)
             return (1);
     }
+    return (0);
+}
+
+int is_keyword_constant(char *str)
+{
+    if (strcmp(str, KEYWORDS[11]) == 0)
+        return (1);
+    if (strcmp(str, KEYWORDS[12]) == 0)
+        return (1);
+    if (strcmp(str, KEYWORDS[13]) == 0)
+        return (1);
+    if (strcmp(str, KEYWORDS[14]) == 0)
+        return (1);
     return (0);
 }
 
