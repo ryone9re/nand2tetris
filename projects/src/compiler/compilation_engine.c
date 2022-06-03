@@ -71,9 +71,9 @@ void compile_class(FILE *op, Token *tokens, char *file_name)
 {
     Token *token = tokens;
 
+    fprintf(op, "<class>\n");
     if (strcmp(token->word, KEYWORDS[0]) == 0)
     {
-        fprintf(op, "<class>\n");
         token = write_keyword(op, token, file_name);
         token = write_identifier(op, token, file_name);
         if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[0])
@@ -94,56 +94,61 @@ void compile_class(FILE *op, Token *tokens, char *file_name)
             fprintf(stderr, "%s:%d\tCould Not Find '%s' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[1], token->word);
             exit(1);
         }
-        fprintf(op, "</class>\n");
     }
     else
     {
         fprintf(stderr, "%s:%d\tIncorrect Token Found: \"%s\"\n\t\tMust be \"%s\".\n", file_name, token->row, token->word, KEYWORDS[0]);
         exit(1);
     }
+    fprintf(op, "</class>\n");
 }
 
 Token *compile_class_var_dec(FILE *op, Token *tokens, char *file_name)
 {
     Token *token = tokens;
 
-    if (strcmp(token->word, KEYWORDS[5]) == 0)
-        token = write_keyword(op, token, file_name);
-    else if (strcmp(token->word, KEYWORDS[4]) == 0)
-        token = write_keyword(op, token, file_name);
+    fprintf(op, "<classVarDec>\n");
+    if (token->token_type == KEYWORD && (strcmp(token->word, KEYWORDS[5]) == 0 || strcmp(token->word, KEYWORDS[4]) == 0))
+    {
+        if (strcmp(token->word, KEYWORDS[5]) == 0)
+            token = write_keyword(op, token, file_name);
+        else
+            token = write_keyword(op, token, file_name);
+        if (token->token_type == KEYWORD)
+            token = compile_type(op, token, file_name);
+        else if (token->token_type == IDENTIFIER)
+            token = write_identifier(op, token, file_name);
+        else
+        {
+            fprintf(stderr, "%s:%d\tIncorrect Token Type: \"%s\" Looking for Keyword or Identifier.\n\t\tToken at this location is of an incorrect type.\n\t\tAt this location only a keyword or identifier is allowed.\n", file_name, token->row, token->word);
+            exit(1);
+        }
+        if (token->token_type == IDENTIFIER)
+            token = write_identifier(op, token, file_name);
+        else
+        {
+            fprintf(stderr, "%s:%d\tInvalid Variable: \"%s\"\n\t\tToken Must be only containing alphabet, number and underscore.\n", file_name, token->row, token->word);
+            exit(1);
+        }
+        while (token->word[0] == SYMBOLS[7])
+        {
+            token = write_symbol(op, token, file_name);
+            token = write_identifier(op, token, file_name);
+        }
+        if (token->word[0] == SYMBOLS[8])
+            token = write_symbol(op, token, file_name);
+        else
+        {
+            fprintf(stderr, "%s:%d\tCould Not Find '%s' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[8], token->word);
+            exit(1);
+        }
+    }
     else
     {
         fprintf(stderr, "%s:%d\tIncomplete Class Declaration: \"%s\"\n", file_name, token->row, token->word);
         exit(1);
     }
-    if (token->token_type == KEYWORD)
-        token = compile_type(op, token, file_name);
-    else if (token->token_type == IDENTIFIER)
-        token = write_identifier(op, token, file_name);
-    else
-    {
-        fprintf(stderr, "%s:%d\tIncorrect Token Type: \"%s\" Looking for Keyword or Identifier.\n\t\tToken at this location is of an incorrect type.\n\t\tAt this location only a keyword or identifier is allowed.\n", file_name, token->row, token->word);
-        exit(1);
-    }
-    if (token->token_type == IDENTIFIER)
-        token = write_identifier(op, token, file_name);
-    else
-    {
-        fprintf(stderr, "%s:%d\tInvalid Variable: \"%s\"\n\t\tToken Must be only containing alphabet, number and underscore.\n", file_name, token->row, token->word);
-        exit(1);
-    }
-    while (token->word[0] == SYMBOLS[7])
-    {
-        token = write_symbol(op, token, file_name);
-        token = write_identifier(op, token, file_name);
-    }
-    if (token->word[0] == SYMBOLS[8])
-        token = write_symbol(op, token, file_name);
-    else
-    {
-        fprintf(stderr, "%s:%d\tCould Not Find '%s' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[8], token->word);
-        exit(1);
-    }
+    fprintf(op, "</classVarDec>\n");
     return (token);
 }
 
@@ -188,6 +193,7 @@ Token *compile_subroutine(FILE *op, Token *tokens, char *file_name)
 {
     Token *token = tokens;
 
+    fprintf(op, "<subroutineDec>\n");
     if (token->token_type == KEYWORD && (strcmp(token->word, KEYWORDS[1]) == 0 || strcmp(token->word, KEYWORDS[2]) == 0 || strcmp(token->word, KEYWORDS[3]) == 0))
     {
         token = write_keyword(op, token, file_name);
@@ -218,6 +224,7 @@ Token *compile_subroutine(FILE *op, Token *tokens, char *file_name)
         fprintf(stderr, "%s:%d\tCould Not Complete Subroutine Call At: \"%s\"\n", file_name, token->row, token->word);
         exit(1);
     }
+    fprintf(op, "</subroutineDec>\n");
     return (token);
 }
 
@@ -225,6 +232,7 @@ Token *compile_parameter_list(FILE *op, Token *tokens, char *file_name)
 {
     Token *token = tokens;
 
+    fprintf(op, "<parameterList>\n");
     if (is_type(token))
     {
         token = compile_type(op, token, file_name);
@@ -235,6 +243,7 @@ Token *compile_parameter_list(FILE *op, Token *tokens, char *file_name)
             token = write_identifier(op, token, file_name);
         }
     }
+    fprintf(op, "</parameterList>\n");
     return (token);
 }
 
@@ -242,6 +251,7 @@ Token *compile_subroutine_body(FILE *op, Token *tokens, char *file_name)
 {
     Token *token = tokens;
 
+    fprintf(op, "<subroutineBody>\n");
     if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[0])
     {
         token = write_symbol(op, token, file_name);
@@ -261,6 +271,7 @@ Token *compile_subroutine_body(FILE *op, Token *tokens, char *file_name)
         fprintf(stderr, "%s:%d\tCould Not Find '%s' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[0], token->word);
         exit(1);
     }
+    fprintf(op, "</subroutineBody>\n");
     return (token);
 }
 
@@ -268,6 +279,7 @@ Token *compile_var_dec(FILE *op, Token *tokens, char *file_name)
 {
     Token *token = tokens;
 
+    fprintf(op, "<varDec>\n");
     if (token->token_type == KEYWORD && strcmp(token->word, KEYWORDS[6]) == 0)
     {
         token = write_keyword(op, token, file_name);
@@ -292,6 +304,7 @@ Token *compile_var_dec(FILE *op, Token *tokens, char *file_name)
         fprintf(stderr, "%s:%d\tIncorrect Token Found: \"%s\"\n\t\tMust be \"%s\".\n", file_name, token->row, token->word, KEYWORDS[6]);
         exit(1);
     }
+    fprintf(op, "</varDec>\n");
     return (token);
 }
 
