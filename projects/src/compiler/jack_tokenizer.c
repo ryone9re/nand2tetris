@@ -100,19 +100,7 @@ Token *jack_tokenizer(FILE *fp)
                         else if (is_integer_constant(word))
                             tokens = add_token(row_count, tokens, word, INT_CONST);
                         else if (is_string_constant(word))
-                        {
-                            // for (int i = 1; i <= (int)strlen(word); i++)
-                            //     word[i - 1] = word[i];
-                            // for (int i = (int)strlen(word) - 1; 0 <= i; i--)
-                            // {
-                            //     if (word[i] == '"')
-                            //     {
-                            //         word[i] = '\0';
-                            //         break;
-                            //     }
-                            // }
                             tokens = add_token(row_count, tokens, word, STRING_CONST);
-                        }
                         else if (is_identifier(word))
                             tokens = add_token(row_count, tokens, word, IDENTIFIER);
                         else
