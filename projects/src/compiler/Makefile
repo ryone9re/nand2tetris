@@ -2,7 +2,7 @@ NAME := jack_compiler
 CC := gcc
 RM := -rm
 CFLAGS := -Wall -Wextra -Werror
-C_LIST := main.c
+C_LIST := jack_analyzer.c jack_tokenizer.c symbol_table.c vm_writer.c compilation_engine.c utils.c
 H_LIST := jack_compiler.h
 O_LIST := $(patsubst %.c, %.o, $(C_LIST))
 
