@@ -1,6 +1,7 @@
 #ifndef VM_WRITER_H
 #define VM_WRITER_H
 
+#include "definition.h"
 #include <stdio.h>
 
 /**
@@ -79,5 +80,21 @@ void write_function(FILE *op, char *class_name, char *subroutine_name, int nLoca
  * @param op
  */
 void write_return(FILE *op);
+
+/**
+ * @brief
+ * Check arithmetic command of op.
+ * @param op
+ * @return enum Command
+ */
+enum Command check_binary_op_command(char *op);
+
+/**
+ * @brief
+ * Check arithmetic command of op.
+ * @param op
+ * @return enum Command
+ */
+enum Command check_unary_op_command(char *op);
 
 #endif /* VM_WRITER_H */

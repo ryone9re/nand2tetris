@@ -10,7 +10,7 @@
             "name": "Debug",
             "program": "${fileDirname}/compiled",
             "args": [
-                "${workspaceFolder}/projects/11/Seven"
+                "${workspaceFolder}/projects/11/ConvertToBin"
             ],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "C/C++: gcc アクティブなファイルのビルド",

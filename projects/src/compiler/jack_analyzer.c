@@ -54,26 +54,26 @@ const char SYMBOLS[SYMBOL_COUNT] = {
 };
 
 const char *SEGMENT[SEGMENT_COUNT] = {
-    "CONST",
-    "ARG",
-    "LOCAL",
-    "STATIC",
-    "THIS",
-    "THAT",
-    "POINTER",
-    "TEMP",
+    "constant",
+    "argument",
+    "local",
+    "static",
+    "this",
+    "that",
+    "pointer",
+    "temp",
 };
 
 const char *COMMAND[COMMAND_COUNT] = {
-    "ADD",
-    "SUB",
-    "NEG",
-    "EQ",
-    "GT",
-    "LT",
-    "AND",
-    "OR",
-    "NOT",
+    "add",
+    "sub",
+    "neg",
+    "eq",
+    "gt",
+    "lt",
+    "and",
+    "or",
+    "not",
 };
 
 int main(int argc, char **argv)

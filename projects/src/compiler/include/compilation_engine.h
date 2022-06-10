@@ -73,10 +73,11 @@ Token *write_identifier(FILE *op, Token *tokens, char *file_name, Symbol_table *
  * @param op Export file pointer.
  * @param tokens Tokens.
  * @param file_name Opening file name.
+ * @param class_name Class name.
  * @param symbol_table Symbol table.
  * @return Token* Next token.
  */
-Token *compile_subroutine_call(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table);
+Token *compile_subroutine_call(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table);
 
 /**
  * @brief
@@ -124,10 +125,11 @@ int is_type(Token *token);
  * @param op Export file pointer.
  * @param tokens Tokens.
  * @param file_name Opening file name.
+ * @param class_name Class name.
  * @param symbol_table Symbol table.
  * @return Token* Next token.
  */
-Token *compile_subroutine_dec(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table);
+Token *compile_subroutine_dec(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table);
 
 /**
  * @brief
@@ -146,10 +148,12 @@ Token *compile_parameter_list(FILE *op, Token *tokens, char *file_name, Symbol_t
  * @param op Export file pointer.
  * @param tokens Tokens.
  * @param file_name Opening file name.
+ * @param class_name Class name.
+ * @param subroutine_name Subroutine name.
  * @param symbol_table Symbol table.
  * @return Token* Next token.
  */
-Token *compile_subroutine_body(FILE *op, Token *token, char *file_name, Symbol_table *symbol_table);
+Token *compile_subroutine_body(FILE *op, Token *token, char *file_name, char *class_name, char *subroutine_name, Symbol_table *symbol_table);
 
 /**
  * @brief
@@ -168,10 +172,11 @@ Token *compile_var_dec(FILE *op, Token *tokens, char *file_name, Symbol_table *s
  * @param op Export file pointer.
  * @param tokens Tokens.
  * @param file_name Opening file name.
+ * @param class_name Class name.
  * @param symbol_table Symbol table.
  * @return Token* Next token.
  */
-Token *compile_statements(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table);
+Token *compile_statements(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table);
 
 /**
  * @brief
@@ -187,10 +192,11 @@ int is_statement(Token *token);
  * @param op Export file pointer.
  * @param tokens Tokens.
  * @param file_name Opening file name.
+ * @param class_name Class name.
  * @param symbol_table Symbol table.
  * @return Token* Next token.
  */
-Token *compile_do(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table);
+Token *compile_do(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table);
 
 /**
  * @brief
@@ -198,10 +204,11 @@ Token *compile_do(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol
  * @param op Export file pointer.
  * @param tokens Tokens.
  * @param file_name Opening file name.
+ * @param class_name Class name.
  * @param symbol_table Symbol table.
  * @return Token* Next token.
  */
-Token *compile_let(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table);
+Token *compile_let(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table);
 
 /**
  * @brief
@@ -209,10 +216,11 @@ Token *compile_let(FILE *op, Token *tokens, char *file_name, Symbol_table *symbo
  * @param op Export file pointer.
  * @param tokens Tokens.
  * @param file_name Opening file name.
+ * @param class_name Class name.
  * @param symbol_table Symbol table.
  * @return Token* Next token.
  */
-Token *compile_while(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table);
+Token *compile_while(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table);
 
 /**
  * @brief
@@ -220,10 +228,11 @@ Token *compile_while(FILE *op, Token *tokens, char *file_name, Symbol_table *sym
  * @param op Export file pointer.
  * @param tokens Tokens.
  * @param file_name Opening file name.
+ * @param class_name Class name.
  * @param symbol_table Symbol table.
  * @return Token* Next token.
  */
-Token *compile_return(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table);
+Token *compile_return(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table);
 
 /**
  * @brief
@@ -231,10 +240,11 @@ Token *compile_return(FILE *op, Token *tokens, char *file_name, Symbol_table *sy
  * @param op Export file pointer.
  * @param tokens Tokens.
  * @param file_name Opening file name.
+ * @param class_name Class name.
  * @param symbol_table Symbol table.
  * @return Token* Next token.
  */
-Token *compile_if(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table);
+Token *compile_if(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table);
 
 /**
  * @brief
@@ -242,10 +252,11 @@ Token *compile_if(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol
  * @param op Export file pointer.
  * @param tokens Tokens.
  * @param file_name Opening file name.
+ * @param class_name Class name.
  * @param symbol_table Symbol table.
  * @return Token* Next token.
  */
-Token *compile_expression(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table);
+Token *compile_expression(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table);
 
 /**
  * @brief
@@ -277,10 +288,11 @@ int is_unary_op(Token *token);
  * @param op Export file pointer.
  * @param tokens Tokens.
  * @param file_name Opening file name.
+ * @param class_name Class name.
  * @param symbol_table Symbol table.
  * @return Token* Next token.
  */
-Token *compile_term(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table);
+Token *compile_term(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table);
 
 /**
  * @brief
@@ -296,9 +308,18 @@ int is_term(Token *token);
  * @param op Export file pointer.
  * @param tokens Tokens.
  * @param file_name Opening file name.
+ * @param class_name Class name.
  * @param symbol_table Symbol table.
  * @return Token* Next token.
  */
-Token *compile_expression_list(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table);
+Token *compile_expression_list(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table);
+
+/**
+ * @brief
+ * Count expressions.
+ * @param token
+ * @return int
+ */
+int count_expression(Token *token);
 
 #endif /* COMPILATION_ENGINE_H */

@@ -47,4 +47,12 @@ Symbol *add_symbol(Symbol *symbol, Symbol *new);
  */
 int var_count(Symbol_table *symbol_table, enum Kind kind);
 
+/**
+ * @brief
+ * Return index of var_name in symbol_table.
+ * @param var_name
+ * @return int If not is in, return -1.
+ */
+int index_of(Symbol_table *symbol_table, char *var_name);
+
 #endif /* SYMBOL_TABLE_H */

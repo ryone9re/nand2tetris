@@ -12,7 +12,19 @@ Token *write_keyword(FILE *op, Token *tokens, char *file_name, Symbol_table *sym
 {
     (void)symbol_table;
     if (tokens->token_type == KEYWORD)
-        fprintf(op, "<keyword> %s </keyword>\n", tokens->word);
+    {
+        if (strcmp(tokens->word, KEYWORDS[11]) == 0)
+        {
+            write_push(op, CONST, 1);
+            write_arithmetic(op, NEG);
+        }
+        else if (strcmp(tokens->word, KEYWORDS[12]) == 0)
+            write_push(op, CONST, 0);
+        else if (strcmp(tokens->word, KEYWORDS[13]) == 0)
+            write_push(op, CONST, 0);
+        else if (strcmp(tokens->word, KEYWORDS[14]) == 0)
+            write_push(op, LOCAL, 0);
+    }
     else
     {
         fprintf(stderr, "%s:%d\tInvaid Keyword: \"%s\"\n", file_name, tokens->row, tokens->word);
@@ -24,8 +36,10 @@ Token *write_keyword(FILE *op, Token *tokens, char *file_name, Symbol_table *sym
 Token *write_symbol(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table)
 {
     (void)symbol_table;
+    (void)op;
     if (tokens->token_type == SYMBOL)
-        fprintf(op, "<symbol> %s </symbol>\n", tokens->word);
+    {
+    }
     else
     {
         fprintf(stderr, "%s:%d\tInvaid Symbol: \"%s\"\n", file_name, tokens->row, tokens->word);
@@ -37,8 +51,9 @@ Token *write_symbol(FILE *op, Token *tokens, char *file_name, Symbol_table *symb
 Token *write_integer_constant(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table)
 {
     (void)symbol_table;
+    (void)op;
     if (tokens->token_type == INT_CONST)
-        fprintf(op, "<integerConstant> %s </integerConstant>\n", tokens->word);
+        write_push(op, CONST, atoi(tokens->word));
     else
     {
         fprintf(stderr, "%s:%d\tInvaid Integer: \"%s\"\t\tInteger is decimal number from %d to %d.\n", file_name, tokens->row, tokens->word, MIN_INT, MAX_INT);
@@ -50,6 +65,7 @@ Token *write_integer_constant(FILE *op, Token *tokens, char *file_name, Symbol_t
 Token *write_string_constant(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table)
 {
     (void)symbol_table;
+    (void)op;
     for (int i = 1; i <= (int)strlen(tokens->word); i++)
         tokens->word[i - 1] = tokens->word[i];
     for (int i = (int)strlen(tokens->word) - 1; 0 <= i; i--)
@@ -61,7 +77,8 @@ Token *write_string_constant(FILE *op, Token *tokens, char *file_name, Symbol_ta
         }
     }
     if (tokens->token_type == STRING_CONST)
-        fprintf(op, "<stringConstant> %s </stringConstant>\n", tokens->word);
+    {
+    }
     else
     {
         fprintf(stderr, "%s:%d\tInvaid String: \"%s\"\t\tString is Unicode string not containing double quotes and newline.\n", file_name, tokens->row, tokens->word);
@@ -73,8 +90,10 @@ Token *write_string_constant(FILE *op, Token *tokens, char *file_name, Symbol_ta
 Token *write_identifier(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table)
 {
     (void)symbol_table;
+    (void)op;
     if (tokens->token_type == IDENTIFIER)
-        fprintf(op, "<identifier> %s </identifier>\n", tokens->word);
+    {
+    }
     else
     {
         fprintf(stderr, "%s:%d\tInvaid Identifier: \"%s\"\t\tIdentifier can contain alphabet, number and underscore.\n", file_name, tokens->row, tokens->word);
@@ -83,17 +102,22 @@ Token *write_identifier(FILE *op, Token *tokens, char *file_name, Symbol_table *
     return (tokens->next);
 }
 
-Token *write_subroutine_call(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table)
+Token *write_subroutine_call(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table)
 {
     Token *token = tokens;
+    char *subroutine = NULL;
+    char *subroutine_name = NULL;
+    int nArgs = 0;
 
     if (is_identifier(token->word))
     {
+        subroutine = token->word;
         token = write_identifier(op, token, file_name, symbol_table);
         if (token->word[0] == SYMBOLS[2])
         {
             token = write_symbol(op, token, file_name, symbol_table);
-            token = compile_expression_list(op, token, file_name, symbol_table);
+            nArgs = count_expression(token);
+            token = compile_expression_list(op, token, file_name, class_name, symbol_table);
             if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[3])
                 token = write_symbol(op, token, file_name, symbol_table);
             else
@@ -101,17 +125,20 @@ Token *write_subroutine_call(FILE *op, Token *tokens, char *file_name, Symbol_ta
                 fprintf(stderr, "%s:%d\tCould Not Find '%c' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[3], token->word);
                 exit(1);
             }
+            write_call(op, class_name, subroutine, nArgs);
         }
         else if (token->word[0] == SYMBOLS[6])
         {
             token = write_symbol(op, token, file_name, symbol_table);
             if (is_identifier(token->word))
             {
+                subroutine_name = token->word;
                 token = write_identifier(op, token, file_name, symbol_table);
                 if (token->word[0] == SYMBOLS[2])
                 {
                     token = write_symbol(op, token, file_name, symbol_table);
-                    token = compile_expression_list(op, token, file_name, symbol_table);
+                    nArgs = count_expression(token);
+                    token = compile_expression_list(op, token, file_name, class_name, symbol_table);
                     if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[3])
                         token = write_symbol(op, token, file_name, symbol_table);
                     else
@@ -125,6 +152,7 @@ Token *write_subroutine_call(FILE *op, Token *tokens, char *file_name, Symbol_ta
                     fprintf(stderr, "%s:%d\tCould Not Find '%c' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[2], token->word);
                     exit(1);
                 }
+                write_call(op, subroutine, subroutine_name, nArgs);
             }
             else
             {
@@ -150,12 +178,13 @@ void compile_class(FILE *op, Token *tokens, char *file_name)
 {
     Token *token = tokens;
     Symbol_table *symbol_table = NULL;
+    char *class_name = NULL;
 
-    fprintf(op, "<class>\n");
     if (strcmp(token->word, KEYWORDS[0]) == 0)
     {
         symbol_table = initialize_symbol_table();
         token = write_keyword(op, token, file_name, symbol_table);
+        class_name = token->word;
         token = write_identifier(op, token, file_name, symbol_table);
         if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[0])
             token = write_symbol(op, token, file_name, symbol_table);
@@ -172,7 +201,7 @@ void compile_class(FILE *op, Token *tokens, char *file_name)
         while (strcmp(token->word, KEYWORDS[1]) == 0 || strcmp(token->word, KEYWORDS[2]) == 0 || strcmp(token->word, KEYWORDS[3]) == 0)
         {
             symbol_table->subroutine = new_symbol();
-            token = compile_subroutine_dec(op, token, file_name, symbol_table);
+            token = compile_subroutine_dec(op, token, file_name, class_name, symbol_table);
             free_symbol(symbol_table->subroutine);
         }
         if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[1])
@@ -190,7 +219,6 @@ void compile_class(FILE *op, Token *tokens, char *file_name)
         fprintf(stderr, "%s:%d\tIncorrect Keyword Found: \"%s\"\n\t\tMust be \"%s\".\n", file_name, token->row, token->word, KEYWORDS[0]);
         exit(1);
     }
-    fprintf(op, "</class>\n");
 }
 
 Token *compile_class_var_dec(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table)
@@ -199,7 +227,6 @@ Token *compile_class_var_dec(FILE *op, Token *tokens, char *file_name, Symbol_ta
     Symbol *s = NULL;
     Symbol *t = NULL;
 
-    fprintf(op, "<classVarDec>\n");
     if (token->token_type == KEYWORD && (strcmp(token->word, KEYWORDS[5]) == 0 || strcmp(token->word, KEYWORDS[4]) == 0))
     {
         s = new_symbol();
@@ -262,7 +289,6 @@ Token *compile_class_var_dec(FILE *op, Token *tokens, char *file_name, Symbol_ta
         fprintf(stderr, "%s:%d\tIncomplete Class Declaration: \"%s\"\n", file_name, token->row, token->word);
         exit(1);
     }
-    fprintf(op, "</classVarDec>\n");
     return (token);
 }
 
@@ -305,11 +331,11 @@ int is_type(Token *token)
     return (0);
 }
 
-Token *compile_subroutine_dec(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table)
+Token *compile_subroutine_dec(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table)
 {
     Token *token = tokens;
+    char *subroutine_name = NULL;
 
-    fprintf(op, "<subroutineDec>\n");
     if (token->token_type == KEYWORD && (strcmp(token->word, KEYWORDS[1]) == 0 || strcmp(token->word, KEYWORDS[2]) == 0 || strcmp(token->word, KEYWORDS[3]) == 0))
     {
         token = write_keyword(op, token, file_name, symbol_table);
@@ -317,6 +343,7 @@ Token *compile_subroutine_dec(FILE *op, Token *tokens, char *file_name, Symbol_t
             token = write_keyword(op, token, file_name, symbol_table);
         else
             token = compile_type(op, token, file_name, symbol_table);
+        subroutine_name = token->word;
         token = write_identifier(op, token, file_name, symbol_table);
         if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[2])
             token = write_symbol(op, token, file_name, symbol_table);
@@ -333,14 +360,13 @@ Token *compile_subroutine_dec(FILE *op, Token *tokens, char *file_name, Symbol_t
             fprintf(stderr, "%s:%d\tCould Not Find '%c' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[3], token->word);
             exit(1);
         }
-        token = compile_subroutine_body(op, token, file_name, symbol_table);
+        token = compile_subroutine_body(op, token, file_name, class_name, subroutine_name, symbol_table);
     }
     else
     {
         fprintf(stderr, "%s:%d\tCould Not Complete Subroutine Call At: \"%s\"\n", file_name, token->row, token->word);
         exit(1);
     }
-    fprintf(op, "</subroutineDec>\n");
     return (token);
 }
 
@@ -349,7 +375,6 @@ Token *compile_parameter_list(FILE *op, Token *tokens, char *file_name, Symbol_t
     Token *token = tokens;
     Symbol *s = NULL;
 
-    fprintf(op, "<parameterList>\n");
     if (is_type(token))
     {
         s = new_symbol();
@@ -371,21 +396,20 @@ Token *compile_parameter_list(FILE *op, Token *tokens, char *file_name, Symbol_t
             add_symbol(symbol_table->subroutine, s);
         }
     }
-    fprintf(op, "</parameterList>\n");
     return (token);
 }
 
-Token *compile_subroutine_body(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table)
+Token *compile_subroutine_body(FILE *op, Token *tokens, char *file_name, char *class_name, char *subroutine_name, Symbol_table *symbol_table)
 {
     Token *token = tokens;
 
-    fprintf(op, "<subroutineBody>\n");
     if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[0])
     {
         token = write_symbol(op, token, file_name, symbol_table);
         while (token->token_type == KEYWORD && strcmp(token->word, KEYWORDS[6]) == 0)
             token = compile_var_dec(op, token, file_name, symbol_table);
-        token = compile_statements(op, token, file_name, symbol_table);
+        write_function(op, class_name, subroutine_name, var_count(symbol_table, Var));
+        token = compile_statements(op, token, file_name, class_name, symbol_table);
         if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[1])
             token = write_symbol(op, token, file_name, symbol_table);
         else
@@ -399,7 +423,6 @@ Token *compile_subroutine_body(FILE *op, Token *tokens, char *file_name, Symbol_
         fprintf(stderr, "%s:%d\tCould Not Find '%c' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[0], token->word);
         exit(1);
     }
-    fprintf(op, "</subroutineBody>\n");
     return (token);
 }
 
@@ -409,7 +432,6 @@ Token *compile_var_dec(FILE *op, Token *tokens, char *file_name, Symbol_table *s
     Symbol *s = NULL;
     Symbol *t = NULL;
 
-    fprintf(op, "<varDec>\n");
     if (token->token_type == KEYWORD && strcmp(token->word, KEYWORDS[6]) == 0)
     {
         s = new_symbol();
@@ -443,29 +465,28 @@ Token *compile_var_dec(FILE *op, Token *tokens, char *file_name, Symbol_table *s
         fprintf(stderr, "%s:%d\tIncorrect Keyword Found: \"%s\"\n\t\tMust be \"%s\".\n", file_name, token->row, token->word, KEYWORDS[6]);
         exit(1);
     }
-    fprintf(op, "</varDec>\n");
     return (token);
 }
 
-Token *compile_statements(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table)
+Token *compile_statements(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table)
 {
     Token *token = tokens;
 
-    fprintf(op, "<statements>\n");
     while (is_statement(token))
     {
         if (strcmp(token->word, KEYWORDS[15]) == 0)
-            token = compile_let(op, token, file_name, symbol_table);
+            token = compile_let(op, token, file_name, class_name, symbol_table);
         else if (strcmp(token->word, KEYWORDS[17]) == 0)
-            token = compile_if(op, token, file_name, symbol_table);
+            token = compile_if(op, token, file_name, class_name, symbol_table);
         else if (strcmp(token->word, KEYWORDS[19]) == 0)
-            token = compile_while(op, token, file_name, symbol_table);
+            token = compile_while(op, token, file_name, class_name, symbol_table);
         else if (strcmp(token->word, KEYWORDS[16]) == 0)
-            token = compile_do(op, token, file_name, symbol_table);
+        {
+            token = compile_do(op, token, file_name, class_name, symbol_table);
+        }
         else
-            token = compile_return(op, token, file_name, symbol_table);
+            token = compile_return(op, token, file_name, class_name, symbol_table);
     }
-    fprintf(op, "</statements>\n");
     return (token);
 }
 
@@ -485,15 +506,14 @@ int is_statement(Token *token)
         return (0);
 }
 
-Token *compile_do(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table)
+Token *compile_do(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table)
 {
     Token *token = tokens;
 
-    fprintf(op, "<doStatement>\n");
     if (token->token_type == KEYWORD && strcmp(token->word, KEYWORDS[16]) == 0)
     {
         token = write_keyword(op, token, file_name, symbol_table);
-        token = write_subroutine_call(op, token, file_name, symbol_table);
+        token = write_subroutine_call(op, token, file_name, class_name, symbol_table);
         if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[8])
             token = write_symbol(op, token, file_name, symbol_table);
         else
@@ -507,23 +527,23 @@ Token *compile_do(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol
         fprintf(stderr, "%s:%d\tCould Not Find \"%s\" Keyword At: \"%s\"\n\t\tSubroutine calls must begin with \"%s\" declaration.\n", file_name, token->row, KEYWORDS[16], token->word, KEYWORDS[16]);
         exit(1);
     }
-    fprintf(op, "</doStatement>\n");
     return (token);
 }
 
-Token *compile_let(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table)
+Token *compile_let(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table)
 {
     Token *token = tokens;
+    char *variable_name = NULL;
 
-    fprintf(op, "<letStatement>\n");
     if (token->token_type == KEYWORD && strcmp(token->word, KEYWORDS[15]) == 0)
     {
         token = write_keyword(op, token, file_name, symbol_table);
+        variable_name = token->word;
         token = write_identifier(op, token, file_name, symbol_table);
         if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[4])
         {
             token = write_symbol(op, token, file_name, symbol_table);
-            token = compile_expression(op, token, file_name, symbol_table);
+            token = compile_expression(op, token, file_name, class_name, symbol_table);
             if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[5])
                 token = write_symbol(op, token, file_name, symbol_table);
             else
@@ -539,7 +559,7 @@ Token *compile_let(FILE *op, Token *tokens, char *file_name, Symbol_table *symbo
             fprintf(stderr, "%s:%d\tCould Not Find '%c' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[17], token->word);
             exit(1);
         }
-        token = compile_expression(op, token, file_name, symbol_table);
+        token = compile_expression(op, token, file_name, class_name, symbol_table);
         if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[8])
             token = write_symbol(op, token, file_name, symbol_table);
         else
@@ -547,21 +567,20 @@ Token *compile_let(FILE *op, Token *tokens, char *file_name, Symbol_table *symbo
             fprintf(stderr, "%s:%d\tCould Not Find '%c' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[8], token->word);
             exit(1);
         }
+        write_pop(op, LOCAL, index_of(symbol_table, variable_name) + 1);
     }
     else
     {
         fprintf(stderr, "%s:%d\tCould Not Find \"%s\" Keyword At: \"%s\"\n\t\tMust begin with \"%s\" declaration.\n", file_name, token->row, KEYWORDS[15], token->word, KEYWORDS[15]);
         exit(1);
     }
-    fprintf(op, "</letStatement>\n");
     return (token);
 }
 
-Token *compile_while(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table)
+Token *compile_while(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table)
 {
     Token *token = tokens;
 
-    fprintf(op, "<whileStatement>\n");
     if (token->token_type == KEYWORD && strcmp(token->word, KEYWORDS[19]) == 0)
     {
         token = write_keyword(op, token, file_name, symbol_table);
@@ -572,7 +591,7 @@ Token *compile_while(FILE *op, Token *tokens, char *file_name, Symbol_table *sym
             fprintf(stderr, "%s:%d\tCould Not Find '%c' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[2], token->word);
             exit(1);
         }
-        token = compile_expression(op, token, file_name, symbol_table);
+        token = compile_expression(op, token, file_name, class_name, symbol_table);
         if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[3])
             token = write_symbol(op, token, file_name, symbol_table);
         else
@@ -587,7 +606,7 @@ Token *compile_while(FILE *op, Token *tokens, char *file_name, Symbol_table *sym
             fprintf(stderr, "%s:%d\tCould Not Find '%c' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[0], token->word);
             exit(1);
         }
-        token = compile_statements(op, token, file_name, symbol_table);
+        token = compile_statements(op, token, file_name, class_name, symbol_table);
         if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[1])
             token = write_symbol(op, token, file_name, symbol_table);
         else
@@ -601,20 +620,18 @@ Token *compile_while(FILE *op, Token *tokens, char *file_name, Symbol_table *sym
         fprintf(stderr, "%s:%d\tCould Not Find \"%s\" Keyword At: \"%s\"\n\t\tMust begin with \"%s\" declaration.\n", file_name, token->row, KEYWORDS[19], token->word, KEYWORDS[19]);
         exit(1);
     }
-    fprintf(op, "</whileStatement>\n");
     return (token);
 }
 
-Token *compile_return(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table)
+Token *compile_return(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table)
 {
     Token *token = tokens;
 
-    fprintf(op, "<returnStatement>\n");
     if (token->token_type == KEYWORD && strcmp(token->word, KEYWORDS[20]) == 0)
     {
         token = write_keyword(op, token, file_name, symbol_table);
         if (is_expression(token))
-            token = compile_expression(op, token, file_name, symbol_table);
+            token = compile_expression(op, token, file_name, class_name, symbol_table);
         if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[8])
             token = write_symbol(op, token, file_name, symbol_table);
         else
@@ -622,21 +639,20 @@ Token *compile_return(FILE *op, Token *tokens, char *file_name, Symbol_table *sy
             fprintf(stderr, "%s:%d\tCould Not Find '%c' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[8], token->word);
             exit(1);
         }
+        write_return(op);
     }
     else
     {
         fprintf(stderr, "%s:%d\tCould Not Find \"%s\" Keyword At: \"%s\"\n\t\tMust begin with \"%s\" declaration.\n", file_name, token->row, KEYWORDS[20], token->word, KEYWORDS[20]);
         exit(1);
     }
-    fprintf(op, "</returnStatement>\n");
     return (token);
 }
 
-Token *compile_if(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table)
+Token *compile_if(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table)
 {
     Token *token = tokens;
 
-    fprintf(op, "<ifStatement>\n");
     if (token->token_type == KEYWORD && strcmp(token->word, KEYWORDS[17]) == 0)
     {
         token = write_keyword(op, token, file_name, symbol_table);
@@ -647,7 +663,7 @@ Token *compile_if(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol
             fprintf(stderr, "%s:%d\tCould Not Find '%c' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[2], token->word);
             exit(1);
         }
-        token = compile_expression(op, token, file_name, symbol_table);
+        token = compile_expression(op, token, file_name, class_name, symbol_table);
         if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[3])
             token = write_symbol(op, token, file_name, symbol_table);
         else
@@ -662,7 +678,7 @@ Token *compile_if(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol
             fprintf(stderr, "%s:%d\tCould Not Find '%c' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[0], token->word);
             exit(1);
         }
-        token = compile_statements(op, token, file_name, symbol_table);
+        token = compile_statements(op, token, file_name, class_name, symbol_table);
         if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[1])
             token = write_symbol(op, token, file_name, symbol_table);
         else
@@ -680,7 +696,7 @@ Token *compile_if(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol
                 fprintf(stderr, "%s:%d\tCould Not Find '%c' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[0], token->word);
                 exit(1);
             }
-            token = compile_statements(op, token, file_name, symbol_table);
+            token = compile_statements(op, token, file_name, class_name, symbol_table);
             if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[1])
                 token = write_symbol(op, token, file_name, symbol_table);
             else
@@ -695,22 +711,27 @@ Token *compile_if(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol
         fprintf(stderr, "%s:%d\tCould Not Find \"%s\" Keyword At: \"%s\"\n\t\tMust begin with \"%s\" declaration.\n", file_name, token->row, KEYWORDS[17], token->word, KEYWORDS[17]);
         exit(1);
     }
-    fprintf(op, "</ifStatement>\n");
     return (token);
 }
 
-Token *compile_expression(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table)
+Token *compile_expression(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table)
 {
     Token *token = tokens;
+    char *operand = NULL;
 
-    fprintf(op, "<expression>\n");
-    token = compile_term(op, token, file_name, symbol_table);
+    token = compile_term(op, token, file_name, class_name, symbol_table);
     while (is_op(token))
     {
+        operand = token->word;
         token = write_symbol(op, token, file_name, symbol_table);
-        token = compile_term(op, token, file_name, symbol_table);
+        token = compile_term(op, token, file_name, class_name, symbol_table);
+        if (operand[0] == SYMBOLS[11])
+            write_call(op, "Math", "multiply", 2);
+        else if (operand[0] == SYMBOLS[12])
+            write_call(op, "Math", "divide", 2);
+        else
+            write_arithmetic(op, check_binary_op_command(operand));
     }
-    fprintf(op, "</expression>\n");
     return (token);
 }
 
@@ -763,11 +784,12 @@ int is_unary_op(Token *token)
     return (0);
 }
 
-Token *compile_term(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table)
+Token *compile_term(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table)
 {
     Token *token = tokens;
+    char *operand = NULL;
+    char *variable = NULL;
 
-    fprintf(op, "<term>\n");
     if (is_term(token))
     {
         if (is_integer_constant(token->word))
@@ -780,7 +802,7 @@ Token *compile_term(FILE *op, Token *tokens, char *file_name, Symbol_table *symb
         {
             token = write_symbol(op, token, file_name, symbol_table);
             if (is_expression(token))
-                token = compile_expression(op, token, file_name, symbol_table);
+                token = compile_expression(op, token, file_name, class_name, symbol_table);
             else
             {
                 fprintf(stderr, "%s:%d\tCould Not Find Expression At: \"%s\"\n", file_name, token->row, token->word);
@@ -796,17 +818,21 @@ Token *compile_term(FILE *op, Token *tokens, char *file_name, Symbol_table *symb
         }
         else if (is_unary_op(token))
         {
+            operand = token->word;
             token = write_symbol(op, token, file_name, symbol_table);
-            token = compile_term(op, token, file_name, symbol_table);
+            token = compile_term(op, token, file_name, class_name, symbol_table);
+            write_arithmetic(op, check_unary_op_command(operand));
         }
         else
         {
+            variable = token->word;
+            write_push(op, LOCAL, index_of(symbol_table, variable) + 1);
             token = write_identifier(op, token, file_name, symbol_table);
             if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[4])
             {
                 token = write_symbol(op, token, file_name, symbol_table);
                 if (is_expression(token))
-                    token = compile_expression(op, token, file_name, symbol_table);
+                    token = compile_expression(op, token, file_name, class_name, symbol_table);
                 else
                 {
                     fprintf(stderr, "%s:%d\tCould Not Find Expression At: \"%s\"\n", file_name, token->row, token->word);
@@ -823,7 +849,7 @@ Token *compile_term(FILE *op, Token *tokens, char *file_name, Symbol_table *symb
             else if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[6])
             {
                 token = write_symbol(op, token, file_name, symbol_table);
-                token = write_subroutine_call(op, token, file_name, symbol_table);
+                token = write_subroutine_call(op, token, file_name, class_name, symbol_table);
             }
         }
     }
@@ -832,7 +858,6 @@ Token *compile_term(FILE *op, Token *tokens, char *file_name, Symbol_table *symb
         fprintf(stderr, "%s:%d\tInvalid Term At: \"%s\"\n", file_name, token->row, token->word);
         exit(1);
     }
-    fprintf(op, "</term>\n");
     return (token);
 }
 
@@ -853,19 +878,18 @@ int is_term(Token *token)
     return (0);
 }
 
-Token *compile_expression_list(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table)
+Token *compile_expression_list(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table)
 {
     Token *token = tokens;
 
-    fprintf(op, "<expressionList>\n");
     if (is_expression(token))
     {
-        token = compile_expression(op, token, file_name, symbol_table);
+        token = compile_expression(op, token, file_name, class_name, symbol_table);
         while (token->token_type == SYMBOL && token->word[0] == SYMBOLS[7])
         {
             token = write_symbol(op, token, file_name, symbol_table);
             if (is_expression(token))
-                token = compile_expression(op, token, file_name, symbol_table);
+                token = compile_expression(op, token, file_name, class_name, symbol_table);
             else
             {
                 fprintf(stderr, "%s:%d\tCould Not Find Expression At: \"%s\"\n", file_name, token->row, token->word);
@@ -873,6 +897,22 @@ Token *compile_expression_list(FILE *op, Token *tokens, char *file_name, Symbol_
             }
         }
     }
-    fprintf(op, "</expressionList>\n");
     return (token);
+}
+
+int count_expression(Token *token)
+{
+    int count = 0;
+    Token *t = token;
+
+    if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[3])
+        return (count);
+    count++;
+    while (!(t->token_type == SYMBOL && t->word[0] == SYMBOLS[8]))
+    {
+        if (t->token_type == SYMBOL && t->word[0] == SYMBOLS[7])
+            count++;
+        t = t->next;
+    }
+    return (count);
 }

@@ -24,6 +24,7 @@ struct Token
 
 enum Kind
 {
+    NoKind,
     Static,
     Field,
     Argument,
@@ -74,7 +75,7 @@ enum Command
     NOT
 };
 
-#define FILE_EXT ".xml"
+#define FILE_EXT ".vm"
 
 #define KEYWORD_COUNT 21
 #define SYMBOL_COUNT 19
