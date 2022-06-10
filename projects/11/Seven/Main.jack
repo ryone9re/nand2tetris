@@ -3,9 +3,19 @@
 // by Nisan and Schocken, MIT Press.
 // File name: projects/11/Seven/Main.jack
 
+// function Main.main 0
+// push constant 1
+// push constant 2
+// push constant 3
+// call Math.multiply 2
+// add
+// call Output.printInt 1
+// return
+
+
 /**
  * Computes the value of 1 + (2 * 3) and prints the result
- * at the top-left of the screen.  
+ * at the top-left of the screen.
  */
 class Main {
 

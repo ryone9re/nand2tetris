@@ -52,10 +52,37 @@ struct Symbol_table
     Symbol *subroutine;
 };
 
+enum Segment
+{
+    CONST,
+    ARG,
+    LOCAL,
+    STATIC,
+    THIS,
+    THAT,
+    POINTER,
+    TEMP
+};
+
+enum Command
+{
+    ADD,
+    SUB,
+    NEG,
+    EQ,
+    GT,
+    LT,
+    AND,
+    OR,
+    NOT
+};
+
 #define FILE_EXT ".xml"
 
 #define KEYWORD_COUNT 21
 #define SYMBOL_COUNT 19
+#define SEGMENT_COUNT 8
+#define COMMAND_COUNT 9
 
 #define MIN_INT 0
 #define MAX_INT 32767
@@ -63,6 +90,8 @@ struct Symbol_table
 /* globals */
 extern const char *KEYWORDS[KEYWORD_COUNT];
 extern const char SYMBOLS[SYMBOL_COUNT];
+extern const char *SEGMENT[SEGMENT_COUNT];
+extern const char *COMMAND[COMMAND_COUNT];
 
 /* main.c */
 
@@ -231,6 +260,94 @@ void free_symbol(Symbol *symbols);
  */
 Symbol *add_symbol(Symbol *symbol, Symbol *new);
 
+/**
+ * @brief
+ * Count kind number in symbol_table.
+ * @param symbol_table
+ * @param kind
+ * @return int
+ */
+int var_count(Symbol_table *symbol_table, enum Kind kind);
+
+/* vm_writer.c */
+
+/**
+ * @brief
+ * Write push command.
+ * @param op
+ * @param seg
+ * @param index
+ */
+void write_push(FILE *op, enum Segment seg, int index);
+
+/**
+ * @brief
+ * Write pop command.
+ * @param op
+ * @param seg
+ * @param index
+ */
+void write_pop(FILE *op, enum Segment seg, int index);
+
+/**
+ * @brief
+ * Write arithmetic.
+ * @param op
+ * @param cm
+ */
+void write_arithmetic(FILE *op, enum Command cm);
+
+/**
+ * @brief
+ * Write label.
+ * @param op
+ * @param label
+ */
+void write_label(FILE *op, char *label);
+
+/**
+ * @brief
+ * Write goto command.
+ * @param op
+ * @param label
+ */
+void write_goto(FILE *op, char *label);
+
+/**
+ * @brief
+ * Write if-goto command.
+ * @param op
+ * @param label
+ */
+void write_if(FILE *op, char *label);
+
+/**
+ * @brief
+ * Write call command.
+ * @param op
+ * @param class_name
+ * @param subroutine_name
+ * @param nArgs
+ */
+void write_call(FILE *op, char *class_name, char *subroutine_name, int nArgs);
+
+/**
+ * @brief
+ * Write function command.
+ * @param op
+ * @param class_name
+ * @param subroutine_name
+ * @param nLocals
+ */
+void write_function(FILE *op, char *class_name, char *subroutine_name, int nLocals);
+
+/**
+ * @brief
+ * Write return command.
+ * @param op
+ */
+void write_return(FILE *op);
+
 /* compilation_engine.c */
 
 /**
@@ -354,10 +471,11 @@ int is_type(Token *token);
  * @param op Export file pointer.
  * @param tokens Tokens.
  * @param file_name Opening file name.
+ * @param class_name Class name.
  * @param symbol_table Symbol table.
  * @return Token* Next token.
  */
-Token *compile_subroutine_dec(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table);
+Token *compile_subroutine_dec(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table);
 
 /**
  * @brief

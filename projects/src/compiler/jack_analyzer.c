@@ -53,6 +53,29 @@ const char SYMBOLS[SYMBOL_COUNT] = {
     '~', /* 18 */
 };
 
+const char *SEGMENT[SEGMENT_COUNT] = {
+    "CONST",
+    "ARG",
+    "LOCAL",
+    "STATIC",
+    "THIS",
+    "THAT",
+    "POINTER",
+    "TEMP",
+};
+
+const char *COMMAND[COMMAND_COUNT] = {
+    "ADD",
+    "SUB",
+    "NEG",
+    "EQ",
+    "GT",
+    "LT",
+    "AND",
+    "OR",
+    "NOT",
+};
+
 int main(int argc, char **argv)
 {
     char *file_path = NULL;

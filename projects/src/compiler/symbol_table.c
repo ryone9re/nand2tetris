@@ -5,6 +5,8 @@
 Symbol_table *initialize_symbol_table()
 {
     Symbol_table *symbol_table = (Symbol_table *)malloc(sizeof(symbol_table));
+    symbol_table->class = NULL;
+    symbol_table->subroutine = NULL;
     return (symbol_table);
 }
 
@@ -29,22 +31,25 @@ void free_symbol(Symbol *symbols)
     Symbol *s = NULL;
     Symbol *t = NULL;
 
-    while (symbols->next != NULL)
+    if (symbols != NULL)
     {
-        s = symbols;
-        while (s->next != NULL)
+        while (symbols->next != NULL)
         {
-            t = s;
-            s = s->next;
+            s = symbols;
+            while (s->next != NULL)
+            {
+                t = s;
+                s = s->next;
+            }
+            free(s->type);
+            free(s->name);
+            free(s);
+            t->next = NULL;
         }
-        free(s->type);
-        free(s->name);
-        free(s);
-        t->next = NULL;
+        free(symbols->type);
+        free(symbols->name);
+        free(symbols);
     }
-    free(symbols->type);
-    free(symbols->name);
-    free(symbols);
 }
 
 Symbol *add_symbol(Symbol *symbol, Symbol *new)
@@ -74,4 +79,35 @@ Symbol *add_symbol(Symbol *symbol, Symbol *new)
     n->index = index;
     s->next = n;
     return (s->next);
+}
+
+int var_count(Symbol_table *symbol_table, enum Kind kind)
+{
+    int count = 0;
+    Symbol *c = symbol_table->class;
+    Symbol *s = symbol_table->subroutine;
+
+    if (s != NULL)
+    {
+        while (s->next != NULL)
+        {
+            if (s->kind == kind)
+                count++;
+            s = s->next;
+        }
+        if (s->name != NULL && s->kind == kind)
+            count++;
+    }
+    if (c != NULL)
+    {
+        while (c->next != NULL)
+        {
+            if (c->kind == kind)
+                count++;
+            c = c->next;
+        }
+        if (c->name != NULL && c->kind == kind)
+            count++;
+    }
+    return (count);
 }
