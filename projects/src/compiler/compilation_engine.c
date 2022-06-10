@@ -150,12 +150,14 @@ void compile_class(FILE *op, Token *tokens, char *file_name)
 {
     Token *token = tokens;
     Symbol_table *symbol_table = NULL;
+    char *class_name = NULL;
 
     fprintf(op, "<class>\n");
     if (strcmp(token->word, KEYWORDS[0]) == 0)
     {
         symbol_table = initialize_symbol_table();
         token = write_keyword(op, token, file_name, symbol_table);
+        class_name = token->word;
         token = write_identifier(op, token, file_name, symbol_table);
         if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[0])
             token = write_symbol(op, token, file_name, symbol_table);
@@ -172,7 +174,7 @@ void compile_class(FILE *op, Token *tokens, char *file_name)
         while (strcmp(token->word, KEYWORDS[1]) == 0 || strcmp(token->word, KEYWORDS[2]) == 0 || strcmp(token->word, KEYWORDS[3]) == 0)
         {
             symbol_table->subroutine = new_symbol();
-            token = compile_subroutine_dec(op, token, file_name, symbol_table);
+            token = compile_subroutine_dec(op, token, file_name, class_name, symbol_table);
             free_symbol(symbol_table->subroutine);
         }
         if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[1])
@@ -305,9 +307,10 @@ int is_type(Token *token)
     return (0);
 }
 
-Token *compile_subroutine_dec(FILE *op, Token *tokens, char *file_name, Symbol_table *symbol_table)
+Token *compile_subroutine_dec(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table)
 {
     Token *token = tokens;
+    char *subroutine_name = NULL;
 
     fprintf(op, "<subroutineDec>\n");
     if (token->token_type == KEYWORD && (strcmp(token->word, KEYWORDS[1]) == 0 || strcmp(token->word, KEYWORDS[2]) == 0 || strcmp(token->word, KEYWORDS[3]) == 0))
@@ -317,6 +320,7 @@ Token *compile_subroutine_dec(FILE *op, Token *tokens, char *file_name, Symbol_t
             token = write_keyword(op, token, file_name, symbol_table);
         else
             token = compile_type(op, token, file_name, symbol_table);
+        subroutine_name = token->word;
         token = write_identifier(op, token, file_name, symbol_table);
         if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[2])
             token = write_symbol(op, token, file_name, symbol_table);
@@ -334,6 +338,7 @@ Token *compile_subroutine_dec(FILE *op, Token *tokens, char *file_name, Symbol_t
             exit(1);
         }
         token = compile_subroutine_body(op, token, file_name, symbol_table);
+        write_function(op, class_name, subroutine_name, var_count(symbol_table, Var));
     }
     else
     {

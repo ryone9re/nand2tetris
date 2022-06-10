@@ -10,7 +10,6 @@
 <parameterList>
 </parameterList>
 <symbol> ) </symbol>
-function Main.main 0
 <subroutineBody>
 <symbol> { </symbol>
 <statements>
@@ -51,6 +50,7 @@ function Main.main 0
 </statements>
 <symbol> } </symbol>
 </subroutineBody>
+function Main.main 0
 </subroutineDec>
 <symbol> } </symbol>
 </class>
