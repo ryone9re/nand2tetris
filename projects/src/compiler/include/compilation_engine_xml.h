@@ -1,5 +1,5 @@
-#ifndef COMPILATION_ENGINE_H
-#define COMPILATION_ENGINE_H
+#ifndef COMPILATION_ENGINE_XML_H
+#define COMPILATION_ENGINE_XML_H
 
 #include "jack_compiler.h"
 
@@ -280,4 +280,4 @@ int is_term(Token *token);
  */
 Token *compile_expression_list(FILE *op, Token *tokens, char *file_name);
 
-#endif /* COMPILATION_ENGINE_H */
+#endif /* COMPILATION_ENGINE_XML_H */
