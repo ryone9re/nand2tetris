@@ -204,7 +204,7 @@ void jack_analyzer(char *jack_file_path)
     }
     free(file_name);
     // compilation_engine_xml(op, tokens, jack_file_path);
-    compilation_engine();
+    compilation_engine(op, tokens, jack_file_path);
     fclose(op);
     free_token(tokens);
 }
