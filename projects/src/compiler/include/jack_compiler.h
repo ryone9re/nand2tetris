@@ -7,7 +7,8 @@
 #include "jack_tokenizer.h"
 #include "symbol_table.h"
 #include "vm_writer.h"
-#include "compilation_engine_xml.h"
+#include "compilation_engine.h"
+// #include "compilation_engine_xml.h"
 #include "utils.h"
 #include <stdio.h>
 
