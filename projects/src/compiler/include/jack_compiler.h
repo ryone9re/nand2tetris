@@ -10,6 +10,5 @@
 #include "compilation_engine.h"
 // #include "compilation_engine_xml.h"
 #include "utils.h"
-#include <stdio.h>
 
 #endif /* JACK_COMPILER_H */
