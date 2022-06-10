@@ -6,6 +6,7 @@
   },
   "files.associations": {
     ".*lintrc": "json",
-    "stdio.h": "c"
+    "stdio.h": "c",
+    "jack_compiler.h": "c"
   },
 }

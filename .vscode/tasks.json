@@ -10,6 +10,8 @@
         "-Wall",
         "-Werror",
         "-Wuninitialized",
+        "-I",
+        "${fileDirname}/include",
         "-g",
         "${fileDirname}/*.c",
         "-o",

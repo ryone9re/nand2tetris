@@ -1,7 +1,8 @@
 #ifndef JACK_TOKENIZER_H
 #define JACK_TOKENIZER_H
 
-#include "jack_compiler.h"
+#include "definition.h"
+#include <stdio.h>
 
 /**
  * @brief

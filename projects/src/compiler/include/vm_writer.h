@@ -1,7 +1,7 @@
 #ifndef VM_WRITER_H
 #define VM_WRITER_H
 
-#include "jack_compiler.h"
+#include <stdio.h>
 
 /**
  * @brief
