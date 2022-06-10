@@ -10,7 +10,7 @@
  * @param tokens Tokens.
  * @param file_name Opening file name.
  */
-void compilation_engine(FILE *op, Token *tokens, char *file_name);
+void compilation_engine_xml(FILE *op, Token *tokens, char *file_name);
 
 /**
  * @brief

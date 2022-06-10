@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void compilation_engine(FILE *op, Token *tokens, char *file_name)
+void compilation_engine_xml(FILE *op, Token *tokens, char *file_name)
 {
     compile_class(op, tokens, file_name);
 }
