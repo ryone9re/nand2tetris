@@ -8,7 +8,6 @@
 #include "symbol_table.h"
 #include "vm_writer.h"
 #include "compilation_engine.h"
-// #include "compilation_engine_xml.h"
 #include "utils.h"
 
 #endif /* JACK_COMPILER_H */

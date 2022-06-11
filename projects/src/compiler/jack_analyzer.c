@@ -205,7 +205,6 @@ void jack_analyzer(char *jack_file_path)
         exit(ENONET);
     }
     free(file_name);
-    // compilation_engine_xml(op, tokens, jack_file_path);
     compilation_engine(op, tokens, jack_file_path);
     fclose(op);
     free_token(tokens);
