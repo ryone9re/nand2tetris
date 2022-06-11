@@ -57,11 +57,29 @@ int index_of(Symbol_table *symbol_table, char *variable);
 
 /**
  * @brief
- * Return Kind of variable in symbol_table..
+ * Return kind of variable in symbol_table.
  * @param symbol_table
  * @param variable
  * @return enum Kind If not is in, return NoKind.
  */
 enum Kind kind_of(Symbol_table *symbol_table, char *variable);
+
+/**
+ * @brief
+ * Return type of variable in symbol_table.
+ * @param symbol_table
+ * @param variable
+ * @return enum Kind If not is in, return NULL.
+ */
+char *type_of(Symbol_table *symbol_table, char *variable);
+
+/**
+ * @brief
+ * Returns whether a variable of type has been declared.
+ * @param symbol_table
+ * @param type
+ * @return int Return index if true, else -1.
+ */
+int is_declare_type(Symbol_table *symbol_table, char *type);
 
 #endif /* SYMBOL_TABLE_H */

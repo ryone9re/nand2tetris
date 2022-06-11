@@ -117,7 +117,7 @@ int index_of(Symbol_table *symbol_table, char *variable)
     Symbol *s = symbol_table->subroutine;
     Symbol *c = symbol_table->class;
 
-    if (s != NULL)
+    if (s != NULL && s->name != NULL)
     {
         while (s->next != NULL)
         {
@@ -128,7 +128,7 @@ int index_of(Symbol_table *symbol_table, char *variable)
         if (strcmp(s->name, variable) == 0)
             return (s->index);
     }
-    if (c != NULL)
+    if (c != NULL && c->name != NULL)
     {
         while (c->next != NULL)
         {
@@ -147,7 +147,7 @@ enum Kind kind_of(Symbol_table *symbol_table, char *variable)
     Symbol *s = symbol_table->subroutine;
     Symbol *c = symbol_table->class;
 
-    if (s != NULL)
+    if (s != NULL && s->name != NULL)
     {
         while (s->next != NULL)
         {
@@ -158,7 +158,7 @@ enum Kind kind_of(Symbol_table *symbol_table, char *variable)
         if (strcmp(s->name, variable) == 0)
             return (s->kind);
     }
-    if (c != NULL)
+    if (c != NULL && c->name != NULL)
     {
         while (c->next != NULL)
         {
@@ -170,4 +170,64 @@ enum Kind kind_of(Symbol_table *symbol_table, char *variable)
             return (c->kind);
     }
     return (NoKind);
+}
+
+char *type_of(Symbol_table *symbol_table, char *variable)
+{
+    Symbol *s = symbol_table->subroutine;
+    Symbol *c = symbol_table->class;
+
+    if (s != NULL && s->name != NULL)
+    {
+        while (s->next != NULL)
+        {
+            if (strcmp(s->name, variable) == 0)
+                return (s->type);
+            s = s->next;
+        }
+        if (strcmp(s->name, variable) == 0)
+            return (s->type);
+    }
+    if (c != NULL && c->name != NULL)
+    {
+        while (c->next != NULL)
+        {
+            if (strcmp(c->name, variable) == 0)
+                return (c->type);
+            c = c->next;
+        }
+        if (strcmp(c->name, variable) == 0)
+            return (c->type);
+    }
+    return (NULL);
+}
+
+int is_declare_type(Symbol_table *symbol_table, char *type)
+{
+    Symbol *s = symbol_table->subroutine;
+    Symbol *c = symbol_table->class;
+
+    if (s != NULL && s->name != NULL)
+    {
+        while (s->next != NULL)
+        {
+            if (strcmp(s->type, type) == 0)
+                return (s->index);
+            s = s->next;
+        }
+        if (strcmp(s->type, type) == 0)
+            return (s->index);
+    }
+    if (c != NULL && c->name != NULL)
+    {
+        while (c->next != NULL)
+        {
+            if (strcmp(c->type, type) == 0)
+                return (c->index);
+            c = c->next;
+        }
+        if (strcmp(c->type, type) == 0)
+            return (c->index);
+    }
+    return (-1);
 }

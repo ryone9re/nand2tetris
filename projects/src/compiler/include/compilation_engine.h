@@ -150,10 +150,11 @@ Token *compile_parameter_list(FILE *op, Token *tokens, char *file_name, Symbol_t
  * @param file_name Opening file name.
  * @param class_name Class name.
  * @param subroutine_name Subroutine name.
+ * @param subroutine_kind Subroutine kind.
  * @param symbol_table Symbol table.
  * @return Token* Next token.
  */
-Token *compile_subroutine_body(FILE *op, Token *token, char *file_name, char *class_name, char *subroutine_name, Symbol_table *symbol_table);
+Token *compile_subroutine_body(FILE *op, Token *token, char *file_name, char *class_name, char *subroutine_name, enum Subroutine_Kind subroutine_kind, Symbol_table *symbol_table);
 
 /**
  * @brief

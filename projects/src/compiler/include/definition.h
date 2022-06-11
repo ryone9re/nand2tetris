@@ -75,6 +75,13 @@ enum Command
     NOT
 };
 
+enum Subroutine_Kind
+{
+    FUNCTION,
+    CONSTRUCTOR,
+    METHOD,
+};
+
 #define FILE_EXT ".vm"
 
 #define KEYWORD_COUNT 21
