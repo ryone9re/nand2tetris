@@ -122,6 +122,7 @@ Token *write_subroutine_call(FILE *op, Token *tokens, char *file_name, char *cla
         {
             token = write_symbol(op, token, file_name, symbol_table);
             nArgs = count_expression(token);
+            write_push(op, POINTER, 0);
             token = compile_expression_list(op, token, file_name, class_name, symbol_table);
             if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[3])
                 token = write_symbol(op, token, file_name, symbol_table);
@@ -130,7 +131,6 @@ Token *write_subroutine_call(FILE *op, Token *tokens, char *file_name, char *cla
                 fprintf(stderr, "%s:%d\tCould Not Find '%c' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[3], token->word);
                 exit(1);
             }
-            write_push(op, POINTER, 0);
             write_call(op, class_name, subroutine, nArgs + 1);
         }
         else if (token->word[0] == SYMBOLS[6])
