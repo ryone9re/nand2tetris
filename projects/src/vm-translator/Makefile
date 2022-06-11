@@ -1,4 +1,4 @@
-NAME := jack-vm-tlansrator
+NAME := vm-tlansrator
 CC := gcc
 RM := -rm
 CFLAGS := -Wall -Wextra -Werror
