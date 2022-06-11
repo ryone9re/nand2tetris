@@ -1,4 +1,4 @@
-NAME := vm-tlansrator
+NAME := vm-translator
 CC := gcc
 RM := -rm
 CFLAGS := -Wall -Wextra -Werror
