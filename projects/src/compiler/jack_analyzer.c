@@ -76,6 +76,8 @@ const char *COMMAND[COMMAND_COUNT] = {
     "not",
 };
 
+int LABEL_NUM = 0;
+
 int main(int argc, char **argv)
 {
     char *file_path = NULL;

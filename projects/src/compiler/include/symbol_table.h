@@ -49,10 +49,19 @@ int var_count(Symbol_table *symbol_table, enum Kind kind);
 
 /**
  * @brief
- * Return index of var_name in symbol_table.
- * @param var_name
+ * Return index of variable in symbol_table.
+ * @param variable
  * @return int If not is in, return -1.
  */
-int index_of(Symbol_table *symbol_table, char *var_name);
+int index_of(Symbol_table *symbol_table, char *variable);
+
+/**
+ * @brief
+ * Return Kind of variable in symbol_table..
+ * @param symbol_table
+ * @param variable
+ * @return enum Kind If not is in, return NoKind.
+ */
+enum Kind kind_of(Symbol_table *symbol_table, char *variable);
 
 #endif /* SYMBOL_TABLE_H */

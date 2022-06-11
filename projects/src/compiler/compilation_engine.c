@@ -567,7 +567,22 @@ Token *compile_let(FILE *op, Token *tokens, char *file_name, char *class_name, S
             fprintf(stderr, "%s:%d\tCould Not Find '%c' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[8], token->word);
             exit(1);
         }
-        write_pop(op, LOCAL, index_of(symbol_table, variable_name) + 1);
+        if (kind_of(symbol_table, variable_name) == Var)
+        {
+            write_pop(op, LOCAL, index_of(symbol_table, variable_name));
+        }
+        else if (kind_of(symbol_table, variable_name) == Argument)
+        {
+            write_pop(op, ARG, index_of(symbol_table, variable_name));
+        }
+        else if (kind_of(symbol_table, variable_name) == Static)
+        {
+            // TODO Static変数へのポップ
+        }
+        else if (kind_of(symbol_table, variable_name) == Field)
+        {
+            // TODO Field変数へのポップ
+        }
     }
     else
     {
@@ -580,9 +595,15 @@ Token *compile_let(FILE *op, Token *tokens, char *file_name, char *class_name, S
 Token *compile_while(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table)
 {
     Token *token = tokens;
+    int l = 0;
+    char label[BUFSIZ];
 
     if (token->token_type == KEYWORD && strcmp(token->word, KEYWORDS[19]) == 0)
     {
+        LABEL_NUM++;
+        l = LABEL_NUM;
+        sprintf(label, "L%d", l);
+        write_label(op, label);
         token = write_keyword(op, token, file_name, symbol_table);
         if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[2])
             token = write_symbol(op, token, file_name, symbol_table);
@@ -599,6 +620,11 @@ Token *compile_while(FILE *op, Token *tokens, char *file_name, char *class_name,
             fprintf(stderr, "%s:%d\tCould Not Find '%c' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[3], token->word);
             exit(1);
         }
+        write_arithmetic(op, NOT);
+        LABEL_NUM++;
+        l = LABEL_NUM;
+        sprintf(label, "L%d", l);
+        write_if(op, label);
         if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[0])
             token = write_symbol(op, token, file_name, symbol_table);
         else
@@ -614,6 +640,12 @@ Token *compile_while(FILE *op, Token *tokens, char *file_name, char *class_name,
             fprintf(stderr, "%s:%d\tCould Not Find '%c' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[1], token->word);
             exit(1);
         }
+        l--;
+        sprintf(label, "L%d", l);
+        write_goto(op, label);
+        l++;
+        sprintf(label, "L%d", l);
+        write_label(op, label);
     }
     else
     {
@@ -652,6 +684,8 @@ Token *compile_return(FILE *op, Token *tokens, char *file_name, char *class_name
 Token *compile_if(FILE *op, Token *tokens, char *file_name, char *class_name, Symbol_table *symbol_table)
 {
     Token *token = tokens;
+    int l = 0;
+    char label[BUFSIZ];
 
     if (token->token_type == KEYWORD && strcmp(token->word, KEYWORDS[17]) == 0)
     {
@@ -678,6 +712,11 @@ Token *compile_if(FILE *op, Token *tokens, char *file_name, char *class_name, Sy
             fprintf(stderr, "%s:%d\tCould Not Find '%c' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[0], token->word);
             exit(1);
         }
+        write_arithmetic(op, NOT);
+        LABEL_NUM++;
+        l = LABEL_NUM;
+        sprintf(label, "L%d", l);
+        write_if(op, label);
         token = compile_statements(op, token, file_name, class_name, symbol_table);
         if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[1])
             token = write_symbol(op, token, file_name, symbol_table);
@@ -686,6 +725,9 @@ Token *compile_if(FILE *op, Token *tokens, char *file_name, char *class_name, Sy
             fprintf(stderr, "%s:%d\tCould Not Find '%c' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[1], token->word);
             exit(1);
         }
+        LABEL_NUM++;
+        sprintf(label, "L%d", LABEL_NUM);
+        write_goto(op, label);
         if (token->token_type == KEYWORD && strcmp(token->word, KEYWORDS[18]) == 0)
         {
             token = write_keyword(op, token, file_name, symbol_table);
@@ -696,6 +738,9 @@ Token *compile_if(FILE *op, Token *tokens, char *file_name, char *class_name, Sy
                 fprintf(stderr, "%s:%d\tCould Not Find '%c' Symbol At This Location: \"%s\"\n", file_name, token->row, SYMBOLS[0], token->word);
                 exit(1);
             }
+            sprintf(label, "L%d", l);
+            write_label(op, label);
+            l = LABEL_NUM;
             token = compile_statements(op, token, file_name, class_name, symbol_table);
             if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[1])
                 token = write_symbol(op, token, file_name, symbol_table);
@@ -705,6 +750,8 @@ Token *compile_if(FILE *op, Token *tokens, char *file_name, char *class_name, Sy
                 exit(1);
             }
         }
+        sprintf(label, "L%d", l);
+        write_label(op, label);
     }
     else
     {
@@ -826,7 +873,6 @@ Token *compile_term(FILE *op, Token *tokens, char *file_name, char *class_name, 
         else
         {
             variable = token->word;
-            write_push(op, LOCAL, index_of(symbol_table, variable) + 1);
             token = write_identifier(op, token, file_name, symbol_table);
             if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[4])
             {
@@ -849,7 +895,26 @@ Token *compile_term(FILE *op, Token *tokens, char *file_name, char *class_name, 
             else if (token->token_type == SYMBOL && token->word[0] == SYMBOLS[6])
             {
                 token = write_symbol(op, token, file_name, symbol_table);
-                token = write_subroutine_call(op, token, file_name, class_name, symbol_table);
+                token = write_subroutine_call(op, token, file_name, variable, symbol_table);
+            }
+            else
+            {
+                if (kind_of(symbol_table, variable) == Var)
+                {
+                    write_push(op, LOCAL, index_of(symbol_table, variable));
+                }
+                else if (kind_of(symbol_table, variable) == Argument)
+                {
+                    write_push(op, ARG, index_of(symbol_table, variable));
+                }
+                else if (kind_of(symbol_table, variable) == Static)
+                {
+                    // TODO Static変数へのプッシュ
+                }
+                else if (kind_of(symbol_table, variable) == Field)
+                {
+                    // TODO Field変数へのプッシュ
+                }
             }
         }
     }

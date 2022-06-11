@@ -79,14 +79,7 @@ Token *jack_tokenizer(FILE *fp)
                     }
                     else if (is_symbol_str(word))
                     {
-                        if (strcmp(word, "&") == 0)
-                            tokens = add_token(row_count, tokens, "&amp;", SYMBOL);
-                        else if (strcmp(word, "<") == 0)
-                            tokens = add_token(row_count, tokens, "&lt;", SYMBOL);
-                        else if (strcmp(word, ">") == 0)
-                            tokens = add_token(row_count, tokens, "&gt;", SYMBOL);
-                        else
-                            tokens = add_token(row_count, tokens, word, SYMBOL);
+                        tokens = add_token(row_count, tokens, word, SYMBOL);
                         free(word);
                         word = NULL;
                         continue;

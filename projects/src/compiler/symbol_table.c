@@ -112,7 +112,7 @@ int var_count(Symbol_table *symbol_table, enum Kind kind)
     return (count);
 }
 
-int index_of(Symbol_table *symbol_table, char *var_name)
+int index_of(Symbol_table *symbol_table, char *variable)
 {
     Symbol *s = symbol_table->subroutine;
     Symbol *c = symbol_table->class;
@@ -121,23 +121,53 @@ int index_of(Symbol_table *symbol_table, char *var_name)
     {
         while (s->next != NULL)
         {
-            if (strcmp(s->name, var_name) == 0)
+            if (strcmp(s->name, variable) == 0)
                 return (s->index);
             s = s->next;
         }
-        if (strcmp(s->name, var_name) == 0)
+        if (strcmp(s->name, variable) == 0)
             return (s->index);
     }
     if (c != NULL)
     {
         while (c->next != NULL)
         {
-            if (strcmp(c->name, var_name) == 0)
+            if (strcmp(c->name, variable) == 0)
                 return (c->index);
             c = c->next;
         }
-        if (strcmp(c->name, var_name) == 0)
+        if (strcmp(c->name, variable) == 0)
             return (c->index);
     }
     return (-1);
+}
+
+enum Kind kind_of(Symbol_table *symbol_table, char *variable)
+{
+    Symbol *s = symbol_table->subroutine;
+    Symbol *c = symbol_table->class;
+
+    if (s != NULL)
+    {
+        while (s->next != NULL)
+        {
+            if (strcmp(s->name, variable) == 0)
+                return (s->kind);
+            s = s->next;
+        }
+        if (strcmp(s->name, variable) == 0)
+            return (s->kind);
+    }
+    if (c != NULL)
+    {
+        while (c->next != NULL)
+        {
+            if (strcmp(c->name, variable) == 0)
+                return (c->kind);
+            c = c->next;
+        }
+        if (strcmp(c->name, variable) == 0)
+            return (c->kind);
+    }
+    return (NoKind);
 }

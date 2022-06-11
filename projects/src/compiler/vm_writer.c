@@ -57,9 +57,9 @@ enum Command check_binary_op_command(char *op)
     if (op[0] == SYMBOLS[14])
         return (OR);
     if (op[0] == SYMBOLS[15])
-        return (GT);
-    if (op[0] == SYMBOLS[16])
         return (LT);
+    if (op[0] == SYMBOLS[16])
+        return (GT);
     return (EQ);
 }
 

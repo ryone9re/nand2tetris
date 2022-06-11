@@ -90,5 +90,6 @@ extern const char *KEYWORDS[KEYWORD_COUNT];
 extern const char SYMBOLS[SYMBOL_COUNT];
 extern const char *SEGMENT[SEGMENT_COUNT];
 extern const char *COMMAND[COMMAND_COUNT];
+extern int LABEL_NUM;
 
 #endif /* DEFINITION_H */
