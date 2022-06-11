@@ -10,6 +10,9 @@ O_LIST := $(patsubst %.c, %.o, $(C_LIST))
 $(NAME): $(O_LIST)
 	$(CC) $(CFLAGS) -I $(H_LIST) $(O_LIST) -o $@
 
+$(O_LIST):
+	$(CC) $(CFLAGS) -I $(H_LIST) $(C_LIST) -c
+
 all: $(NAME)
 
 clean:
