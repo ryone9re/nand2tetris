@@ -73,13 +73,4 @@ enum Kind kind_of(Symbol_table *symbol_table, char *variable);
  */
 char *type_of(Symbol_table *symbol_table, char *variable);
 
-/**
- * @brief
- * Returns whether a variable of type has been declared.
- * @param symbol_table
- * @param type
- * @return int Return index if true, else -1.
- */
-int is_declare_type(Symbol_table *symbol_table, char *type);
-
 #endif /* SYMBOL_TABLE_H */

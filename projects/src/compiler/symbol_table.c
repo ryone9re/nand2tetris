@@ -201,33 +201,3 @@ char *type_of(Symbol_table *symbol_table, char *variable)
     }
     return (NULL);
 }
-
-int is_declare_type(Symbol_table *symbol_table, char *type)
-{
-    Symbol *s = symbol_table->subroutine;
-    Symbol *c = symbol_table->class;
-
-    if (s != NULL && s->name != NULL)
-    {
-        while (s->next != NULL)
-        {
-            if (strcmp(s->type, type) == 0)
-                return (s->index);
-            s = s->next;
-        }
-        if (strcmp(s->type, type) == 0)
-            return (s->index);
-    }
-    if (c != NULL && c->name != NULL)
-    {
-        while (c->next != NULL)
-        {
-            if (strcmp(c->type, type) == 0)
-                return (c->index);
-            c = c->next;
-        }
-        if (strcmp(c->type, type) == 0)
-            return (c->index);
-    }
-    return (-1);
-}
